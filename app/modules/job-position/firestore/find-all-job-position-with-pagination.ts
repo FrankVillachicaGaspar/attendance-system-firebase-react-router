@@ -15,13 +15,16 @@ export default async function findAllJobPositionWithPagination({
 }) {
   let jobPositionList: FirebaseJobPosition[] = [];
 
-  const jobPositionCollectionRef = adminFirestoreDb.collection("job-position");
+  const jobPositionCollectionRef = adminFirestoreDb
+    .collection("job-position")
+    .where("deleted_at", "==", null);
 
-  const jobPositionListRef = jobPositionCollectionRef.orderBy("created_at", "desc").limit(limit).offset(skip);
+  const jobPositionListRef = jobPositionCollectionRef
+    .orderBy("created_at", "desc")
+    .limit(limit)
+    .offset(skip);
 
-  const jobPositionListSnap = await jobPositionListRef
-    .where("deleted_at", "==", null)
-    .get();
+  const jobPositionListSnap = await jobPositionListRef.get();
 
   if (!jobPositionListSnap.empty) {
     jobPositionList = jobPositionListSnap.docs.map((doc) => {
@@ -35,8 +38,6 @@ export default async function findAllJobPositionWithPagination({
 
   const { totalItems, totalPages, nextPage, prevPage } =
     await getPaginationMetadata(jobPositionCollectionRef, page, limit);
-
-  console.log(jobPositionList);
 
   return {
     data: jobPositionList,

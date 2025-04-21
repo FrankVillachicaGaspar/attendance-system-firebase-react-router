@@ -1,47 +1,66 @@
-import type { FirebaseEmployee } from "@/common/types/firebase/FirebaseEmployee.type";
-import { adminFirestoreDb } from "@/lib/firebase.server";
 import type { DocumentReference } from "firebase-admin/firestore";
+import type { FirebaseEmployee } from "../types/firebase/FirebaseEmployee.type";
+import { adminFirestoreDb } from "@/lib/firebase.server";
 
-/**
- * Función que devuelve el empleado que coincide con el parámetro userUid
- * @param userUid El UID del usuario que se quiere obtener el empleado
- * @returns Un objeto de tipo FirebaseEmployee que contiene la información del empleado
- */
 export async function getCurrentEmployee(
   userUid: string
 ): Promise<FirebaseEmployee> {
-  const empolyeeRef = adminFirestoreDb.doc(`employee/${userUid}`);
+  try {
+    const employeeRef = adminFirestoreDb.doc(`employee/${userUid}`);
+    const employeeSnap = await employeeRef.get();
 
-  const employeeSnap = await empolyeeRef.get();
+    if (!employeeSnap.exists) {
+      throw new Error("No se encontraron los datos del usuario");
+    }
 
-  if (!employeeSnap.exists)
-    throw new Error("No se encontraron los datos del usuario");
+    const data = employeeSnap.data();
+    if (!data) throw new Error("Documento del empleado está vacío");
 
-  const data = employeeSnap.data();
+    const departmentRef = data.department as DocumentReference | undefined;
+    const roleRef = data.role as DocumentReference | undefined;
+    const jobPositionRef = data.job_position as DocumentReference | undefined;
 
-  const departmentRef = data!.department as DocumentReference;
-  const roleRef = data!.role as DocumentReference;
+    if (!departmentRef || !roleRef || !jobPositionRef) {
+      throw new Error(
+        "Faltan referencias de departamento, rol o puesto de trabajo en el documento del empleado"
+      );
+    }
 
-  const [departmentSnap, roleSnap] = await Promise.all([
-    departmentRef.get(),
-    roleRef.get(),
-  ]);
+    const [departmentSnap, roleSnap, jobPositionSnap] = await Promise.all([
+      departmentRef.get(),
+      roleRef.get(),
+      jobPositionRef.get(),
+    ]);
 
-  if (!departmentSnap.exists) {
-    throw new Error("No encontró el departamento en el documento de empleados");
+    if (!departmentSnap.exists) {
+      throw new Error("No se encontró el documento del departamento");
+    }
+
+    if (!roleSnap.exists) {
+      throw new Error("No se encontró el documento del rol");
+    }
+
+    if (!jobPositionSnap.exists) {
+      throw new Error("No se encontró el documento del puesto de trabajo");
+    }
+
+    const departmentData = departmentSnap.data();
+    const roleData = roleSnap.data();
+    const jobPositionData = jobPositionSnap.data();
+
+    if (!departmentData || !roleData || !jobPositionData) {
+      throw new Error("Los datos del departamento, del rol o del puesto de trabajo están vacíos");
+    }
+
+    return {
+      uid: employeeSnap.id,
+      ...data,
+      department: { ...departmentData, uid: departmentSnap.id },
+      role: { ...roleData, uid: roleSnap.id },
+      job_position: { ...jobPositionData, uid: jobPositionSnap.id },
+    } as FirebaseEmployee;
+  } catch (error) {
+    console.error("[getCurrentEmployee] Error al obtener empleado:", error);
+    throw error;
   }
-  if (!roleSnap.exists) {
-    throw new Error("No encontró el rol en el documento de empleados");
-  }
-
-  const departmentData = departmentSnap.data()!;
-  const roleData = roleSnap.data()!;
-  const employeeData = data;
-
-  return {
-    uid: employeeSnap.id,
-    ...employeeData,
-    department: { ...departmentData, uid: departmentSnap.id },
-    role: { ...roleData, uid: roleSnap.id },
-  } as FirebaseEmployee;
 }

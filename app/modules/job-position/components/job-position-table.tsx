@@ -111,7 +111,6 @@ export default function JobPositionTable({
       <Separator />
       <CardContent className="flex flex-col items-end">
         <SimpleCrudTable
-          title="Departamentos"
           data={jobPositionPaginationResponse.data}
           columns={[
             {

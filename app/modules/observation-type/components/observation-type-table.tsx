@@ -115,7 +115,6 @@ export default function ObservationTypeTable({
       <Separator />
       <CardContent className="flex flex-col items-end">
         <SimpleCrudTable
-          title="Tipos de observación"
           data={observationTypePaginationResponse.data}
           columns={[
             {

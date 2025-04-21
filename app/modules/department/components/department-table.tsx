@@ -111,7 +111,6 @@ export default function DepartmentTable({
       <Separator />
       <CardContent className="flex flex-col items-end">
         <SimpleCrudTable
-          title="Departamentos"
           data={departmentPaginationResponse.data}
           columns={[
             {

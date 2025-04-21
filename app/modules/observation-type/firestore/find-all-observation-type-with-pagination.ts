@@ -15,13 +15,16 @@ export default async function findAllObservationTypeWithPagination({
 }) {
   let observationTypeList: FirebaseObservationType[] = [];
 
-  const observationTypeCollectionRef = adminFirestoreDb.collection("observation-type");
+  const observationTypeCollectionRef = adminFirestoreDb
+    .collection("observation-type")
+    .where("deleted_at", "==", null);
 
-  const observationTypeListRef = observationTypeCollectionRef.orderBy("created_at", "desc").limit(limit).offset(skip);
+  const observationTypeListRef = observationTypeCollectionRef
+    .orderBy("created_at", "desc")
+    .limit(limit)
+    .offset(skip);
 
-  const observationTypeListSnap = await observationTypeListRef
-    .where("deleted_at", "==", null)
-    .get();
+  const observationTypeListSnap = await observationTypeListRef.get();
 
   if (!observationTypeListSnap.empty) {
     observationTypeList = observationTypeListSnap.docs.map((doc) => {
@@ -35,8 +38,6 @@ export default async function findAllObservationTypeWithPagination({
 
   const { totalItems, totalPages, nextPage, prevPage } =
     await getPaginationMetadata(observationTypeCollectionRef, page, limit);
-
-  console.log(observationTypeList);
 
   return {
     data: observationTypeList,

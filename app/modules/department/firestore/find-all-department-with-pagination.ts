@@ -15,13 +15,16 @@ export default async function findAllDepartmentWithPagination({
 }) {
   let departmentList: FirebaseDepartment[] = [];
 
-  const departmentCollectionRef = adminFirestoreDb.collection("department");
+  const departmentCollectionRef = adminFirestoreDb
+    .collection("department")
+    .where("deleted_at", "==", null);
 
-  const departmentListRef = departmentCollectionRef.orderBy("created_at", "desc").limit(limit).offset(skip);
+  const departmentListRef = departmentCollectionRef
+    .orderBy("created_at", "desc")
+    .limit(limit)
+    .offset(skip);
 
-  const departmentListSnap = await departmentListRef
-    .where("deleted_at", "==", null)
-    .get();
+  const departmentListSnap = await departmentListRef.get();
 
   if (!departmentListSnap.empty) {
     departmentList = departmentListSnap.docs.map((doc) => {
@@ -35,8 +38,6 @@ export default async function findAllDepartmentWithPagination({
 
   const { totalItems, totalPages, nextPage, prevPage } =
     await getPaginationMetadata(departmentCollectionRef, page, limit);
-
-  console.log(departmentList);
 
   return {
     data: departmentList,

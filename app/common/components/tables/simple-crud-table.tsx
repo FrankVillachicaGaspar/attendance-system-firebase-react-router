@@ -13,19 +13,28 @@ import {
   type ColumnDef,
 } from "@tanstack/react-table";
 import SyncLoader from "react-spinners/SyncLoader";
-import { useNavigation } from "react-router";
+import { useLocation, useNavigation } from "react-router";
 interface Porps<T> {
-  title: string;
   data: T[];
   columns: ColumnDef<T>[];
 }
-export default function SimpleCrudTable<T>({ title, data, columns }: Porps<T>) {
+export default function SimpleCrudTable<T>({ data, columns }: Porps<T>) {
   const navigation = useNavigation();
+  const location = useLocation();
+
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
   });
+
+  const handleIsPageChange = () => {
+    if (navigation.location) {
+      return navigation.location.pathname !== location.pathname;
+    }
+    return true;
+  };
+
   return (
     <Table>
       <TableHeader>
@@ -48,7 +57,7 @@ export default function SimpleCrudTable<T>({ title, data, columns }: Porps<T>) {
       </TableHeader>
       <TableBody>
         {table.getRowModel().rows?.length ? (
-          navigation.state === "idle" ? (
+          handleIsPageChange() ? (
             table.getRowModel().rows.map((row) => (
               <TableRow
                 key={row.id}
