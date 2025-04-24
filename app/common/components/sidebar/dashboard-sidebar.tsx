@@ -43,14 +43,14 @@ export default function DashboardSidebar({ user, employee }: Props) {
           <SidebarGroupLabel>Inicio</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              <SidebarMenuItem>
+              {/* <SidebarMenuItem>
                 <SidebarMenuButton asChild tooltip="Empleados">
                   <Link to="/admin/dashboard">
                     <LayoutDashboardIcon className="h-4 w-4" />
                     <span>Dashboard</span>
                   </Link>
                 </SidebarMenuButton>
-              </SidebarMenuItem>
+              </SidebarMenuItem> */}
               <SidebarMenuItem>
                 <SidebarMenuButton asChild tooltip="Usuarios">
                   <Link to="/admin/attendance">

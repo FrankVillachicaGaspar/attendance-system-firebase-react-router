@@ -6,7 +6,7 @@ export default function executeToast(config: ToastConfig) {
     toast.error(config.title, {
       description: config.description,
       duration: config.duration,
-      closeButton: config.closeButton,
+      closeButton: config.closeButton ?? false,
       position: config.position ?? "bottom-right",
       richColors: config.richColors ?? false,
     });
@@ -14,7 +14,7 @@ export default function executeToast(config: ToastConfig) {
     toast.success(config.title, {
       description: config.description,
       duration: config.duration,
-      closeButton: config.closeButton,
+      closeButton: config.closeButton ?? false,
       position: config.position ?? "bottom-right",
       richColors: config.richColors ?? false,
     });
@@ -22,7 +22,7 @@ export default function executeToast(config: ToastConfig) {
     toast.warning(config.title, {
       description: config.description,
       duration: config.duration,
-      closeButton: config.closeButton,
+      closeButton: config.closeButton ?? false,
       position: config.position ?? "bottom-right",
       richColors: config.richColors ?? false,
     });
@@ -30,7 +30,7 @@ export default function executeToast(config: ToastConfig) {
     toast.info(config.title, {
       description: config.description,
       duration: config.duration,
-      closeButton: config.closeButton,
+      closeButton: config.closeButton ?? false,
       position: config.position ?? "bottom-right",
       richColors: config.richColors ?? false,
     });

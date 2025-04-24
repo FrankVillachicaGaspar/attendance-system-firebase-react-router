@@ -45,7 +45,6 @@ import {
 } from "@/components/ui/command";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 import type { FirebaseJobPosition } from "@/common/types/firebase/FirebaseJobPosition";
 import type { FirebaseDepartment } from "@/common/types/firebase/FirebaseDepartment.type";

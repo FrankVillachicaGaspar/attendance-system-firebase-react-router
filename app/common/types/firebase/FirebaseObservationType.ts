@@ -6,3 +6,8 @@ export type FirebaseObservationType = {
   deleted_at: string | null;
 };
 
+export type FirebaseShortObservationType = {
+  uid: string;
+  name: string;
+  description: string;
+};

@@ -3,7 +3,7 @@ export type ToastConfig = {
   title: string;
   description: string;
   duration?: number;
-  closeButton: boolean;
+  closeButton?: boolean;
   position?:
     | "top-right"
     | "top-left"

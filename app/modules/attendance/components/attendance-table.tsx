@@ -1,22 +1,80 @@
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Clock, User } from "lucide-react";
-import type { Attendance } from "../types/attendance";
-import { ObservationDialog } from "./observation-dialog";
+import { Clock, Edit, User } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { SearchSelect } from "@/components/ui/serch-select";
+import type { FirebaseDepartment } from "@/common/types/firebase/FirebaseDepartment.type";
+import { useEffect, useState } from "react";
+import AttendanceDialog from "./attendance-dialog";
+import { Label } from "@/components/ui/label";
+import type { FirebaseAttendance } from "@/common/types/firebase/FirebaseAttendance";
+import SimpleCrudTable from "@/common/components/tables/simple-crud-table";
+import type { FirebaseObservationType } from "@/common/types/firebase/FirebaseObservationType";
+import { useFetcher, useLocation, useNavigate } from "react-router";
+import type { Route } from ".react-router/types/app/routes/admin/sections/+types/attendance";
+import executeToastList from "@/common/utils/execute-toast-list.util";
+import { AttendanceIntent } from "../enums/attendance-intents.enum";
+import PulseLoader from "react-spinners/PulseLoader";
+import { format } from "date-fns";
 
 interface AttendanceTableProps {
-  attendance: Attendance[];
+  attendance: FirebaseAttendance[];
+  departments: FirebaseDepartment[];
+  observationTypes: FirebaseObservationType[];
 }
 
-export function AttendanceTable({ attendance }: AttendanceTableProps) {
+export function AttendanceTable({
+  attendance,
+  departments,
+  observationTypes,
+}: AttendanceTableProps) {
+  const [openModal, setOpenModal] = useState(false);
+  const [selectedAttendance, setSelectedAttendance] = useState<
+    FirebaseAttendance | undefined
+  >(undefined);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const fetcher = useFetcher();
+  const fetcherData = fetcher.data as Route.ComponentProps["actionData"];
+
+  const handleOpenModal = (open: boolean) => {
+    if (!open) {
+      setSelectedAttendance(undefined);
+    }
+    setOpenModal(open);
+  };
+
+  const getDepartmentFilter = () => {
+    const searchParams = new URLSearchParams(location.search);
+    return searchParams.get("department") ?? departments[0]?.uid;
+  };
+
+  const [departmentFilter, setDepartmentFilter] = useState<string | undefined>(
+    getDepartmentFilter()
+  );
+
+  const handleSetDepartmentFilter = (value: string) => {
+    const searchParams = new URLSearchParams(location.search);
+    searchParams.set("department", value);
+    setDepartmentFilter(value);
+    navigate(`${location.pathname}?${searchParams.toString()}`);
+  };
+
+  const handleGenerateAttendances = () => {
+    fetcher.submit(
+      {
+        intent: AttendanceIntent.GENERATE_ATTENDANCES,
+        department: departmentFilter ?? "",
+      },
+      { method: "post" }
+    );
+  };
+
+  useEffect(() => {
+    if (fetcherData) {
+      executeToastList(fetcherData.toastList);
+    }
+  }, [fetcherData]);
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
@@ -24,75 +82,164 @@ export function AttendanceTable({ attendance }: AttendanceTableProps) {
           <Clock className="h-5 w-5" />
           Control de Asistencia
         </CardTitle>
+        <div className="flex items-end gap-2">
+          <div className="flex flex-col gap-2">
+            <Label>Departamento:</Label>
+            <SearchSelect
+              options={departments.map((record) => ({
+                value: record.uid,
+                label: record.name,
+              }))}
+              allowCustomValues={false}
+              placeholder="Selecciona el departamento"
+              className="min-w-40 w-fit"
+              value={departmentFilter || ""}
+              onChange={handleSetDepartmentFilter}
+            />
+          </div>
+          <Button
+            onClick={handleGenerateAttendances}
+            disabled={fetcher.state !== "idle"}
+            className="min-w-56"
+          >
+            {fetcher.state === "idle" ? (
+              "Generar asistencias del día"
+            ) : (
+              <PulseLoader size={10} color="#fff" />
+            )}
+          </Button>
+        </div>
       </CardHeader>
       <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Empleado</TableHead>
-              <TableHead>Primera Entrada</TableHead>
-              <TableHead>Primera Salida</TableHead>
-              <TableHead>Segunda Entrada</TableHead>
-              <TableHead>Segunda Salida</TableHead>
-              <TableHead className="w-[100px]">Acciones</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {attendance.map((record) => (
-              <TableRow key={record.id}>
-                <TableCell>
-                  <div className="flex items-center gap-2">
-                    <User className="h-4 w-4 text-muted-foreground" />
-                    <div>
-                      <div className="font-medium">
-                        {record.names} {record.lastname}
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        DNI: {record.dni}
-                      </div>
+        <SimpleCrudTable
+          data={attendance}
+          columns={[
+            {
+              header: "Empleado",
+              cell: ({ row }) => (
+                <div className="flex items-center gap-2">
+                  <User className="h-4 w-4 text-muted-foreground" />
+                  <div>
+                    <div className="font-medium">
+                      {row.original.employee.names}{" "}
+                      {row.original.employee.lastname}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      DNI: {row.original.employee.dni}
                     </div>
                   </div>
-                </TableCell>
-                <TableCell>
-                  <Input
-                    type="datetime-local"
-                    defaultValue={record.first_check_in_time}
-                    className="w-44"
-                  />
-                </TableCell>
-                <TableCell>
-                  <Input
-                    type="datetime-local"
-                    defaultValue={record.first_check_out_time}
-                    className="w-44"
-                  />
-                </TableCell>
-                <TableCell>
-                  <Input
-                    type="datetime-local"
-                    defaultValue={record.second_check_in_time}
-                    className="w-44"
-                  />
-                </TableCell>
-                <TableCell>
-                  <Input
-                    type="datetime-local"
-                    defaultValue={record.second_check_out_time}
-                    className="w-44"
-                  />
-                </TableCell>
-                <TableCell>
-                  <ObservationDialog
-                    observation_type={record.observation_type}
-                    observation={record.observation}
-                    employeeName={`${record.names} ${record.lastname}`}
-                  />
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+                </div>
+              ),
+            },
+            {
+              header: "Departamento",
+              cell: ({ row }) => (
+                <div className="flex items-center gap-2">
+                  <div>{row.original.employee.department.name}</div>
+                </div>
+              ),
+            },
+            {
+              header: "Primera Entrada",
+              cell: ({ row }) => (
+                <div className="flex items-center gap-2">
+                  <div>
+                    {row.original.first_check_in_time ? (
+                      format(
+                        new Date(row.original.first_check_in_time),
+                        "dd-MM-yyyy HH:mm"
+                      )
+                    ) : (
+                      <span className="text-muted-foreground">
+                        No registrado
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ),
+            },
+            {
+              header: "Primera Salida",
+              cell: ({ row }) => (
+                <div className="flex items-center gap-2">
+                  <div>
+                    {row.original.first_check_out_time ? (
+                      format(
+                        new Date(row.original.first_check_out_time),
+                        "dd-MM-yyyy HH:mm"
+                      )
+                    ) : (
+                      <span className="text-muted-foreground">
+                        No registrado
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ),
+            },
+            {
+              header: "Segunda Entrada",
+              cell: ({ row }) => (
+                <div className="flex items-center gap-2">
+                  <div>
+                    {row.original.second_check_in_time ? (
+                      format(
+                        new Date(row.original.second_check_in_time),
+                        "dd-MM-yyyy HH:mm"
+                      )
+                    ) : (
+                      <span className="text-muted-foreground">
+                        No registrado
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ),
+            },
+            {
+              header: "Segunda Salida",
+              cell: ({ row }) => (
+                <div className="flex items-center gap-2">
+                  <div>
+                    {row.original.second_check_out_time ? (
+                      format(
+                        new Date(row.original.second_check_out_time),
+                        "dd-MM-yyyy HH:mm"
+                      )
+                    ) : (
+                      <span className="text-muted-foreground">
+                        No registrado
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ),
+            },
+            {
+              header: "Acciones",
+              cell: ({ row }) => (
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    onClick={() => {
+                      setSelectedAttendance(row.original);
+                      setOpenModal(true);
+                    }}
+                  >
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                </div>
+              ),
+            },
+          ]}
+        />
       </CardContent>
+      <AttendanceDialog
+        open={openModal}
+        onOpenChange={handleOpenModal}
+        attendance={selectedAttendance}
+        observationTypes={observationTypes}
+      />
     </Card>
   );
 }
