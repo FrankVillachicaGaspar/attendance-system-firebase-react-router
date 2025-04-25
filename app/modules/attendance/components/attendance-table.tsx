@@ -1,7 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Clock, Edit, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { SearchSelect } from "@/components/ui/serch-select";
 import type { FirebaseDepartment } from "@/common/types/firebase/FirebaseDepartment.type";
 import { useEffect, useState } from "react";
 import AttendanceDialog from "./attendance-dialog";
@@ -15,6 +14,7 @@ import executeToastList from "@/common/utils/execute-toast-list.util";
 import { AttendanceIntent } from "../enums/attendance-intents.enum";
 import PulseLoader from "react-spinners/PulseLoader";
 import { format } from "date-fns";
+import { SearchableSelect } from "@/components/ui/search-input-select";
 
 interface AttendanceTableProps {
   attendance: FirebaseAttendance[];
@@ -75,6 +75,10 @@ export function AttendanceTable({
     }
   }, [fetcherData]);
 
+  useEffect(() => {
+    setDepartmentFilter(getDepartmentFilter());
+  }, [attendance]);
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
@@ -85,16 +89,16 @@ export function AttendanceTable({
         <div className="flex items-end gap-2">
           <div className="flex flex-col gap-2">
             <Label>Departamento:</Label>
-            <SearchSelect
-              options={departments.map((record) => ({
-                value: record.uid,
-                label: record.name,
+            <SearchableSelect
+              options={departments.map((department) => ({
+                value: department.uid,
+                label: department.name,
               }))}
-              allowCustomValues={false}
-              placeholder="Selecciona el departamento"
-              className="min-w-40 w-fit"
+              placeholder="Seleccionar departamento"
+              defaultValue={departmentFilter || ""}
               value={departmentFilter || ""}
               onChange={handleSetDepartmentFilter}
+              label="departamento"
             />
           </div>
           <Button
@@ -209,6 +213,22 @@ export function AttendanceTable({
                     ) : (
                       <span className="text-muted-foreground">
                         No registrado
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ),
+            },
+            {
+              header: "Observación",
+              cell: ({ row }) => (
+                <div className="flex items-center gap-2">
+                  <div>
+                    {row.original.observation_type ? (
+                      row.original.observation_type.name
+                    ) : (
+                      <span className="text-muted-foreground">
+                        Ninguna
                       </span>
                     )}
                   </div>

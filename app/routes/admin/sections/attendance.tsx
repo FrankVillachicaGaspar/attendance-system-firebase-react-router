@@ -7,20 +7,28 @@ import findAllAttendanceWithFilters, {
 } from "@/modules/attendance/firestore/find-all-attendance-with-filters";
 import findAllObservationType from "@/modules/observation-type/firestore/find-all-observation-type";
 import getAllAttendanceFilters from "@/modules/attendance/utils/get-attendance-filters";
-import { parse } from "date-fns";
+import { format, parse } from "date-fns";
 import { AttendanceIntent } from "@/modules/attendance/enums/attendance-intents.enum";
 import type { ToastConfig } from "@/common/types/toast-config";
 import generateAttendanceByDepartment from "@/modules/attendance/firestore/generate-attendance-by-department";
-import type { AttendanceFormType } from "@/modules/attendance/schema/attendance.schema";
 import parseAttendanceForm from "@/modules/attendance/utils/parse-attendance-form";
 import updateAttendance from "@/modules/attendance/firestore/update-attendance";
+import exportToExcel from "@/modules/attendance/utils/export-excel";
 
 export default function Attendance({ loaderData }: Route.ComponentProps) {
   const { departmentList, attendanceList, observationTypes, filters } =
     loaderData;
+
+  const handleExportToExcel = () => {
+    exportToExcel(attendanceList);
+  };
+
   return (
     <div className="flex flex-col gap-3">
-      <AttendanceFilters initialDate={filters.date} />
+      <AttendanceFilters
+        initialDate={filters.date}
+        handleExportToExcel={handleExportToExcel}
+      />
       <AttendanceTable
         attendance={attendanceList}
         departments={departmentList}

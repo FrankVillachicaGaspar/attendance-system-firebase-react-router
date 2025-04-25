@@ -54,10 +54,30 @@ export async function loader({ request }: Route.LoaderArgs) {
 
 export default function Login() {
   return (
-    <div className="flex min-h-svh flex-col items-center justify-center gap-6 bg-muted p-6 md:p-10">
-      <div className="flex w-full max-w-sm flex-col gap-6">
-        <img src="/logos/with-text.webp" className="w-40 mx-auto" alt="logo" />
-        <LoginForm />
+    <div className="grid min-h-svh lg:grid-cols-2">
+      <div className="hidden lg:grid grid-cols-1 grid-rows-[auto_1fr] max-h-screen my-auto px-7 gap-10">
+        <div className="flex flex-col gap-2">
+          <h2 className="text-black z-10 text-center text-2xl font-medium">
+            Bienvenido al portal de Asistencias de R&S
+          </h2>
+          <p className="text-gray-500 z-10 text-center text-md">
+            Liderando la eficiencia en el monitoreo de personal, con soluciones
+            adaptadas a tus operaciones
+          </p>
+        </div>
+        <img
+          src="/img/login-side-image.webp"
+          alt="Image"
+          className="object-cover w-full"
+        />
+      </div>
+      <div className="flex flex-col gap-4md:p-10 bg-red-500 py-6">
+        <div className="flex flex-col gap-10 flex-1 items-center justify-center">
+          <h1 className="text-6xl font-light text-center text-white">R&S</h1>
+          <div className="w-ful">
+            <LoginForm />
+          </div>
+        </div>
       </div>
     </div>
   );

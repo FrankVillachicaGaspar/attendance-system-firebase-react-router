@@ -6,13 +6,17 @@ export default async function updateAttendance(
   attendanceForm: AttendanceFormType
 ) {
   try {
-    const observationTypeRef = adminFirestoreDb
-      .collection("observation-type")
-      .doc(attendanceForm.observation_type ?? "");
+    let observationTypeRef: FirebaseFirestore.DocumentReference | null = null;
+    if (attendanceForm.observation_type) {
+      observationTypeRef = adminFirestoreDb
+        .collection("observation-type")
+        .doc(attendanceForm.observation_type ?? "");
+    }
 
     const attendanceRef = adminFirestoreDb
       .collection("attendance")
       .doc(attendanceUid);
+
     await attendanceRef.update({
       ...attendanceForm,
       observation_type: attendanceForm.observation_type

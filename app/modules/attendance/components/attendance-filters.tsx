@@ -2,17 +2,22 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
-import { DateTimePicker } from "@/components/ui/datetime-picker";
-import { FilterIcon } from "lucide-react";
+import { useEffect, useState } from "react";
+import { FilterIcon, Table } from "lucide-react";
 import { useNavigate, useLocation } from "react-router";
 import { format } from "date-fns";
+import { es } from "date-fns/locale";
+import { DateTimePicker } from "@/components/ui/date-time-picker";
 
 interface Props {
   initialDate: Date | null;
+  handleExportToExcel: () => void;
 }
 
-export default function AttendanceFilters({ initialDate }: Props) {
+export default function AttendanceFilters({
+  initialDate,
+  handleExportToExcel,
+}: Props) {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -20,7 +25,6 @@ export default function AttendanceFilters({ initialDate }: Props) {
   const [dni, setDni] = useState<string>("");
 
   const handleSelectDate = (newDay: Date | undefined) => {
-    console.log(newDay);
     if (!newDay) return;
     setDate(newDay);
   };
@@ -45,9 +49,13 @@ export default function AttendanceFilters({ initialDate }: Props) {
     navigate(`${location.pathname}?${searchParams.toString()}`);
   };
 
+  useEffect(() => {
+    setDate(initialDate ?? new Date());
+  }, [initialDate]);
+
   return (
     <Card>
-      <CardContent>
+      <CardContent className="flex flex-wrap gap-4 items-end justify-between">
         <div className="flex flex-wrap gap-4">
           <div>
             <Label className="mb-2" htmlFor="dni">
@@ -69,12 +77,12 @@ export default function AttendanceFilters({ initialDate }: Props) {
               Fecha
             </Label>
             <DateTimePicker
-              granularity="day"
-              displayFormat={{ hour24: "dd 'de' MMMM 'del' yyyy" }}
-              placeholder="Seleccione la fecha"
-              className="min-w-40"
-              value={date}
-              onChange={handleSelectDate}
+              displayFormat="dd 'de' MMMM 'del' yyyy"
+              date={date}
+              setDate={handleSelectDate}
+              locale={es}
+              hideTime
+              lessThanToday
             />
           </div>
           <div className="mt-auto">
@@ -83,6 +91,15 @@ export default function AttendanceFilters({ initialDate }: Props) {
               Filtrar
             </Button>
           </div>
+        </div>
+        <div>
+          <Button
+            className="bg-green-600 hover:bg-green-700"
+            onClick={handleExportToExcel}
+          >
+            <Table className="mr-2" />
+            Exportar a Excel
+          </Button>
         </div>
       </CardContent>
     </Card>

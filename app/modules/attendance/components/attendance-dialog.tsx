@@ -1,6 +1,5 @@
 import {
   Dialog,
-  DialogTrigger,
   DialogContent,
   DialogTitle,
   DialogDescription,
@@ -22,7 +21,7 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
 import type { FirebaseAttendance } from "@/common/types/firebase/FirebaseAttendance";
-import { DateTimePicker } from "@/components/ui/datetime-picker";
+import { DateTimePicker } from "@/components/ui/date-time-picker";
 import { Textarea } from "@/components/ui/textarea";
 import type { FirebaseObservationType } from "@/common/types/firebase/FirebaseObservationType";
 import {
@@ -36,6 +35,10 @@ import { useFetcher } from "react-router";
 import type { Route } from ".react-router/types/app/routes/admin/sections/+types/attendance";
 import executeToastList from "@/common/utils/execute-toast-list.util";
 import { AttendanceIntent } from "../enums/attendance-intents.enum";
+import { es } from "date-fns/locale";
+import { parse } from "date-fns";
+import PulseLoader from "react-spinners/PulseLoader";
+import { RefreshCcw } from "lucide-react";
 
 interface Props {
   open: boolean;
@@ -66,8 +69,8 @@ export default function AttendanceDialog({
     defaultValues: initialData,
   });
 
-  const onSubmit = (data: AttendanceFormType) => {
-    fetcher.submit(
+  const onSubmit = async (data: AttendanceFormType) => {
+    await fetcher.submit(
       {
         intent: AttendanceIntent.UPDATE_ATTENDANCE,
         uid: attendance?.uid ?? "",
@@ -81,6 +84,15 @@ export default function AttendanceDialog({
       { method: "post" }
     );
     onOpenChange(false);
+  };
+
+  const handleGetDateFromSearchParams = () => {
+    const searchParams = new URLSearchParams(location.search);
+    const date = searchParams.get("date");
+    if (date) {
+      return parse(date, "yyyy-MM-dd", new Date());
+    }
+    return undefined;
   };
 
   useEffect(() => {
@@ -107,92 +119,171 @@ export default function AttendanceDialog({
           >
             {/* First Check-In Time */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <FormField
-                name="first_check_in_time"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel htmlFor="first_check_in_time">
-                      Primera entrada
-                    </FormLabel>
-                    <FormControl>
-                      <DateTimePicker
-                        placeholder="Seleccione la fecha y hora"
-                        value={field.value}
-                        onChange={(e: Date | undefined) =>
-                          field.onChange(e?.toISOString() ?? "")
-                        }
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="grid grid-cols-[1fr_auto] items-end gap-1 w-full">
+                <div>
+                  <FormField
+                    name="first_check_in_time"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel htmlFor="first_check_in_time">
+                          Primera entrada
+                        </FormLabel>
+                        <FormControl>
+                          <DateTimePicker
+                            displayFormat="dd 'de' MMMM 'del' yyyy 'a las' HH:mm"
+                            locale={es}
+                            placeholder="Seleccione la fecha y hora"
+                            date={
+                              handleGetDateFromSearchParams()
+                                ? handleGetDateFromSearchParams()
+                                : field.value
+                                ? new Date(field.value)
+                                : undefined
+                            }
+                            setDate={(e: Date | undefined) =>
+                              field.onChange(e?.toISOString() ?? "")
+                            }
+                            hideDate
+                            lessThanToday
+                            className="text-start"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <Button
+                  type="button"
+                  onClick={() => {
+                    form.setValue("first_check_in_time", null);
+                  }}
+                  variant="outline"
+                  size="icon"
+                >
+                  <RefreshCcw />
+                </Button>
+              </div>
 
               {/* First Check-Out Time */}
-              <FormField
-                name="first_check_out_time"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel htmlFor="first_check_out_time">
-                      Primera salida
-                    </FormLabel>
-                    <FormControl>
-                      <DateTimePicker
-                        placeholder="Seleccione la fecha y hora"
-                        value={field.value}
-                        onChange={(e: Date | undefined) =>
-                          field.onChange(e?.toISOString() ?? "")
-                        }
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="grid grid-cols-[1fr_auto] items-end gap-1 w-full">
+                <div>
+                  <FormField
+                    name="first_check_out_time"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel htmlFor="first_check_out_time">
+                          Primera salida
+                        </FormLabel>
+                        <FormControl>
+                          <DateTimePicker
+                            displayFormat="dd 'de' MMMM 'del' yyyy 'a las' HH:mm"
+                            locale={es}
+                            placeholder="Seleccione la fecha y hora"
+                            date={field.value ? new Date(field.value) : undefined}
+                            setDate={(e: Date | undefined) =>
+                              field.onChange(e?.toISOString() ?? "")
+                            }
+                            hideDate
+                            lessThanToday
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <Button
+                  type="button"
+                  onClick={() => {
+                    form.setValue("first_check_out_time", null);
+                  }}
+                  variant="outline"
+                  size="icon"
+                >
+                  <RefreshCcw />
+                </Button>
+              </div>
 
               {/* Second Check-In Time */}
-              <FormField
-                name="second_check_in_time"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel htmlFor="second_check_in_time">
-                      Segunda entrada
-                    </FormLabel>
-                    <FormControl>
-                      <DateTimePicker
-                        placeholder="Seleccione la fecha y hora"
-                        value={field.value}
-                        onChange={(e: Date | undefined) =>
-                          field.onChange(e?.toISOString() ?? "")
-                        }
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="grid grid-cols-[1fr_auto] items-end gap-1 w-full">
+                <div>
+                  <FormField
+                    name="second_check_in_time"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel htmlFor="second_check_in_time">
+                          Segunda entrada
+                        </FormLabel>
+                        <FormControl>
+                          <DateTimePicker
+                            locale={es}
+                            displayFormat="dd 'de' MMMM 'del' yyyy 'a las' HH:mm"
+                            placeholder="Seleccione la fecha y hora"
+                            date={field.value ? new Date(field.value) : undefined}
+                            setDate={(e: Date | undefined) =>
+                              field.onChange(e?.toISOString() ?? "")
+                            }
+                            hideDate
+                            lessThanToday
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <Button
+                  type="button"
+                  onClick={() => {
+                    form.setValue("second_check_in_time", null);
+                  }}
+                  variant="outline"
+                  size="icon"
+                >
+                  <RefreshCcw />
+                </Button>
+              </div>
 
               {/* Second Check-Out Time */}
-              <FormField
-                name="second_check_out_time"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel htmlFor="second_check_out_time">
-                      Segunda salida
-                    </FormLabel>
-                    <FormControl>
-                      <DateTimePicker
-                        placeholder="Seleccione la fecha y hora"
-                        value={field.value}
-                        onChange={(e: Date | undefined) =>
-                          field.onChange(e?.toISOString() ?? "")
-                        }
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="grid grid-cols-[1fr_auto] items-end gap-1 w-full">
+                <div>
+                  <FormField
+                    name="second_check_out_time"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel htmlFor="second_check_out_time">
+                          Segunda salida
+                        </FormLabel>
+                        <FormControl>
+                          <DateTimePicker
+                            displayFormat="dd 'de' MMMM 'del' yyyy 'a las' HH:mm"
+                            locale={es}
+                            placeholder="Seleccione la fecha y hora"
+                            date={field.value ? new Date(field.value) : undefined}
+                            setDate={(e: Date | undefined) =>
+                              field.onChange(e?.toISOString() ?? "")
+                            }
+                            hideDate
+                            lessThanToday
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <Button
+                  type="button"
+                  onClick={() => {
+                    form.setValue("second_check_out_time", null);
+                  }}
+                  variant="outline"
+                  size="icon"
+                >
+                  <RefreshCcw />
+                </Button>
+              </div>
 
               {/* Observation Type */}
               <FormField
@@ -204,13 +295,21 @@ export default function AttendanceDialog({
                     </FormLabel>
                     <FormControl>
                       <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
+                        onValueChange={(value) => {
+                          if (value === "null") {
+                            form.setValue("observation", "");
+                            field.onChange("");
+                          } else {
+                            field.onChange(value);
+                          }
+                        }}
+                        defaultValue={field.value === "" ? "null" : field.value}
                       >
                         <SelectTrigger className="w-full">
                           <SelectValue placeholder="Seleccione un tipo de observación" />
                         </SelectTrigger>
                         <SelectContent>
+                          <SelectItem value="null">Sin observación</SelectItem>
                           {observationTypes.map((type) => (
                             <SelectItem key={type.uid} value={type.uid}>
                               {type.name}
@@ -256,7 +355,13 @@ export default function AttendanceDialog({
               >
                 Cancelar
               </Button>
-              <Button type="submit">Guardar</Button>
+              <Button type="submit" disabled={fetcher.state !== "idle"}>
+                {fetcher.state !== "idle" ? (
+                  <PulseLoader size={10} color="#fff" />
+                ) : (
+                  "Guardar"
+                )}
+              </Button>
             </div>
           </form>
         </Form>

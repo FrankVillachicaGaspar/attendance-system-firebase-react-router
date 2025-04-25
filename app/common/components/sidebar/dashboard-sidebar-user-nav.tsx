@@ -105,7 +105,7 @@ export default function DashboardSidebarUserNav({ user, employee }: Props) {
                   className="w-full flex justify-start gap-3"
                 >
                   <LogOutIcon />
-                  Logout
+                  Cerrar sesión
                 </Button>
               </DropdownMenuItem>
             </Form>
