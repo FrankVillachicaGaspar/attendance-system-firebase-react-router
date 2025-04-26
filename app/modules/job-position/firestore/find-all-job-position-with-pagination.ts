@@ -16,7 +16,7 @@ export default async function findAllJobPositionWithPagination({
   let jobPositionList: FirebaseJobPosition[] = [];
 
   const jobPositionCollectionRef = adminFirestoreDb
-    .collection("job-position")
+    .collection("job_position")
     .where("deleted_at", "==", null);
 
   const jobPositionListRef = jobPositionCollectionRef

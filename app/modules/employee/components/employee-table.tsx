@@ -31,6 +31,7 @@ import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router";
 import { useDebouncedValue } from "@mantine/hooks";
 import { fi } from "date-fns/locale";
+import _ from "lodash";
 interface Props {
   employeePaginationResponse: PaginationResponse<FirebaseEmployee[]>;
   jobPositions: FirebaseJobPosition[];
@@ -117,9 +118,11 @@ export default function EmployeeTable({
         header: "Nombres",
         cell: ({ row }) => (
           <div>
-            <div className="font-medium">{row.original.names}</div>
+            <div className="font-medium">
+              {_.startCase(row.original.names)}
+            </div>
             <div className="text-sm text-muted-foreground">
-              {row.original.lastname}
+              {_.startCase(row.original.lastname)}
             </div>
           </div>
         ),

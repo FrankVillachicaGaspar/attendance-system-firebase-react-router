@@ -3,7 +3,7 @@ import { adminFirestoreDb } from "@/lib/firebase.server";
 import { format } from "date-fns";
 
 export default async function findAllJobPosition() {
-  const jobPositionCollectionRef = adminFirestoreDb.collection("job-position");
+  const jobPositionCollectionRef = adminFirestoreDb.collection("job_position");
   const jobPositionListRef = jobPositionCollectionRef.where(
     "deleted_at",
     "==",

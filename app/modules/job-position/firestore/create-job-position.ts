@@ -6,7 +6,7 @@ export default async function createJobPosition(
   jobPosition: Partial<FirebaseJobPosition>
 ) {
   try {
-    const collectionRef = adminFirestoreDb.collection("job-position");
+    const collectionRef = adminFirestoreDb.collection("job_position");
     await collectionRef.add({
       name: jobPosition.name,
       description: jobPosition.description,
