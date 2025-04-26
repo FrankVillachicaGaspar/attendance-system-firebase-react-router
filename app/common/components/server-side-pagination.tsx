@@ -17,7 +17,10 @@ export default function ServerSidePagination<T>({
   });
 
   const handlePageChange = (page: number) => {
-    navigate(`?page=${page}`);
+    const searchParams = new URLSearchParams(location.search);
+    searchParams.set("page", page.toString());
+    console.log(searchParams.toString());
+    navigate(`?${searchParams.toString()}`);
     pagination.setPage(page);
   };
 
@@ -50,10 +53,7 @@ export default function ServerSidePagination<T>({
                   pagination.active === index + 1 ? "default" : "outline"
                 }
                 size="icon"
-                onClick={() => {
-                  pagination.setPage(index + 1);
-                  navigate(`?page=${index + 1}`);
-                }}
+                onClick={() => handlePageChange(index + 1)}
               >
                 {index + 1}
               </Button>

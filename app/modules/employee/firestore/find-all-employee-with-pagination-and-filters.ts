@@ -7,23 +7,49 @@ import type {
   QueryDocumentSnapshot,
 } from "firebase-admin/firestore";
 
+interface Filters {
+  department?: string;
+  search?: string;
+}
+
 export default async function findAllEmployeeWithPaginationAndFilters({
   limit,
   skip,
   page,
+  filters,
 }: {
   limit: number;
   skip: number;
   page: number;
+  filters: Filters;
 }): Promise<PaginationResponse<FirebaseEmployee[]>> {
   const employeeCollectionRef = adminFirestoreDb
     .collection("employee")
     .where("deleted_at", "==", null);
 
-  const employeeListRef = employeeCollectionRef
+  let employeeListRef = employeeCollectionRef
     .orderBy("created_at", "desc")
     .limit(limit)
     .offset(skip);
+
+  if (filters.department) {
+    const departmentRef = adminFirestoreDb
+      .collection("department")
+      .doc(filters.department);
+    employeeListRef = employeeListRef.where("department", "==", departmentRef);
+  }
+
+  if (filters.search && filters.search.trim() !== "") {
+    const searchTerm = filters.search.toLowerCase().trim();
+
+    const [firstName, lastName] = searchTerm.split(" ");
+
+    employeeListRef = employeeListRef
+      .where("names", ">=", firstName)
+      .where("names", "<=", firstName + "\uf8ff")
+      .where("lastname", ">=", lastName || "")
+      .where("lastname", "<=", lastName + "\uf8ff" || "\uf8ff");
+  }
 
   const employeeListSnap = await employeeListRef.get();
 
@@ -37,7 +63,7 @@ export default async function findAllEmployeeWithPaginationAndFilters({
   );
 
   const { totalItems, totalPages, nextPage, prevPage } =
-    await getPaginationMetadata(employeeCollectionRef, page, limit);
+    await getPaginationMetadata(employeeListRef, page, limit);
 
   return {
     data: employees.filter((employee) => employee !== null),

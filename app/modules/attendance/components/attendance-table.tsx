@@ -81,7 +81,7 @@ export function AttendanceTable({
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
+      <CardHeader className="flex flex-wrap flex-row items-center justify-between gap-4 md:gap-0">
         <CardTitle className="flex items-center gap-2">
           <Clock className="h-5 w-5" />
           Control de Asistencia

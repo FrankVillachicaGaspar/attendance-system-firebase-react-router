@@ -1,6 +1,14 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Check, Edit, Plus, Trash2, UsersIcon, X } from "lucide-react";
+import {
+  Check,
+  Edit,
+  Plus,
+  SearchIcon,
+  Trash2,
+  UsersIcon,
+  X,
+} from "lucide-react";
 import EmployeeDialog from "./employee-dialog";
 import { useEffect, useMemo, useState } from "react";
 import type { FirebaseEmployee } from "@/common/types/firebase/FirebaseEmployee.type";
@@ -18,7 +26,11 @@ import { type ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import SimpleCrudTable from "@/common/components/tables/simple-crud-table";
 import ConfirmDialog from "@/common/components/confirm-dialog";
-
+import EmployeeDepartmentFilter from "./emloyee-department-filters";
+import { Input } from "@/components/ui/input";
+import { useNavigate } from "react-router";
+import { useDebouncedValue } from "@mantine/hooks";
+import { fi } from "date-fns/locale";
 interface Props {
   employeePaginationResponse: PaginationResponse<FirebaseEmployee[]>;
   jobPositions: FirebaseJobPosition[];
@@ -32,11 +44,13 @@ export default function EmployeeTable({
   departments,
   roles,
 }: Props) {
+  const navigate = useNavigate();
   const [openModal, setOpenModal] = useState(false);
   const [deletedUid, setDeletedUid] = useState<string | null>(null);
   const [selectedEmployee, setSelectedEmployee] = useState<
     FirebaseEmployee | undefined
   >(undefined);
+  const [search, setSearch] = useState("");
 
   const fetcher = useFetcher();
   const fetcherData = fetcher.data as Route.ComponentProps["actionData"];
@@ -183,6 +197,22 @@ export default function EmployeeTable({
     []
   );
 
+  const [debouncedSearch] = useDebouncedValue(search, 500);
+
+  const handleSearch = () => {
+    const searchParams = new URLSearchParams(location.search);
+    if (debouncedSearch.trim() !== "") {
+      searchParams.set("search", debouncedSearch);
+    } else {
+      searchParams.delete("search");
+    }
+    navigate(`/admin/employees?${searchParams.toString()}`);
+  };
+
+  useEffect(() => {
+    handleSearch();
+  }, [debouncedSearch]);
+
   useEffect(() => {
     if (fetcherData) {
       executeToast(fetcherData.toast);
@@ -191,17 +221,31 @@ export default function EmployeeTable({
 
   return (
     <Card>
-      <CardHeader className="flex justify-between">
-        <CardTitle className="text-2xl flex gap-2 items-center">
-          <div className="flex gap-2">
+      <CardHeader className="flex flex-col md:flex-row gap-4 justify-between items-end">
+        <CardTitle className="text-2xl flex flex-col justify-start mb-4 gap-3 items-center w-full md:w-fit">
+          <div className="flex gap-2 w-full">
             <UsersIcon size={30} />
             <span className="text-2xl">Employees</span>
           </div>
+          <div className="flex gap-2 w-full md:min-w-xs md:mr-auto">
+            <Input
+              className="placeholder:font-normal font-normal"
+              placeholder="Buscar empleado por nombre"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
         </CardTitle>
-        <Button onClick={() => setOpenModal(true)}>
-          <Plus />
-          Agregar Empleado
-        </Button>
+        <div className="flex gap-2 items-end flex-wrap">
+          <EmployeeDepartmentFilter departments={departments} />
+          <Button
+            onClick={() => setOpenModal(true)}
+            className="w-full md:w-fit"
+          >
+            <Plus />
+            Agregar Empleado
+          </Button>
+        </div>
         <EmployeeDialog
           open={openModal}
           onOpenChange={handleOpenModal}

@@ -13,6 +13,7 @@ import { updateEmployee } from "@/modules/employee/firestore/update-employee";
 import { logicDeleteEmployee } from "@/modules/employee/firestore/logic-delete-employee";
 import ServerSidePagination from "@/common/components/server-side-pagination";
 import type { FirebaseEmployee } from "@/common/types/firebase/FirebaseEmployee.type";
+import EmployeeFilters from "@/modules/employee/components/emloyee-department-filters";
 
 export default function Employees({ loaderData }: Route.ComponentProps) {
   const {
@@ -22,7 +23,7 @@ export default function Employees({ loaderData }: Route.ComponentProps) {
     roleList,
   } = loaderData;
   return (
-    <div>
+    <div className="flex flex-col gap-4">
       <EmployeeTable
         employeePaginationResponse={employeePaginationResponse}
         jobPositions={jobPositionList}
@@ -37,16 +38,26 @@ export default function Employees({ loaderData }: Route.ComponentProps) {
 }
 
 export async function loader({ request }: Route.LoaderArgs) {
+  const url = new URL(request.url);
+
+  const department = url.searchParams.get("department");
+  const search = url.searchParams.get("search");
+
   const { limit, skip, page } = getPaginationSearchParams(request);
+
+  const departmentList = await findAllDepartment();
 
   const employeePaginationResponse =
     await findAllEmployeeWithPaginationAndFilters({
       limit,
       page,
       skip,
+      filters: {
+        department: department ?? departmentList[0].uid,
+        search: search ?? "",
+      },
     });
 
-  const departmentList = await findAllDepartment();
   const jobPositionList = await findAllJobPosition();
   const roleList = await findAllRoles();
 
