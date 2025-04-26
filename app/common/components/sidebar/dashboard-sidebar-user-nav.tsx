@@ -17,6 +17,7 @@ import type { FirebaseEmployee } from "@/common/types/firebase/FirebaseEmployee.
 import { Form } from "react-router";
 import { Button } from "@/components/ui/button";
 import type { FirebaseAdminUser } from "@/common/types/firebase/FIrebaseAdminUser";
+import _ from "lodash";
 
 interface Props {
   user: FirebaseAdminUser;
@@ -25,7 +26,7 @@ interface Props {
 
 export default function DashboardSidebarUserNav({ user, employee }: Props) {
   const getPartialFullName = (names: string, lastname: string) => {
-    return `${names.split(" ")[0]} ${lastname.split(" ")[0]}`;
+    return `${_.startCase(names.split(" ")[0])} ${_.startCase(lastname.split(" ")[0])}`;
   };
   const getUserInitials = () => {
     if (employee) {

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { FilterIcon, Table } from "lucide-react";
 import { useNavigate, useLocation } from "react-router";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
 import { DateTimePicker } from "@/components/ui/date-time-picker";
 
@@ -21,7 +21,10 @@ export default function AttendanceFilters({
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [date, setDate] = useState<Date>(initialDate ?? new Date());
+  const [date, setDate] = useState<Date>(
+    parseISO(initialDate?.toISOString() ?? new Date().toISOString()) ??
+      new Date()
+  );
   const [dni, setDni] = useState<string>("");
 
   const handleSelectDate = (newDay: Date | undefined) => {

@@ -111,12 +111,11 @@ export default function AttendanceDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="min-w-2xl">
         <DialogTitle>
-          Asistencia - {" "}
+          Asistencia -{" "}
           {format(handleGetDateFromSearchParams() ?? new Date(), "dd-MM-yyyy")}
         </DialogTitle>
         <DialogDescription>
-          Empleado{" "}
-          {_.startCase(_.toLower(attendance?.employee.names))}{" "}
+          Empleado {_.startCase(_.toLower(attendance?.employee.names))}{" "}
           {_.startCase(_.toLower(attendance?.employee.lastname))}
         </DialogDescription>
         <Form {...form}>
@@ -126,16 +125,16 @@ export default function AttendanceDialog({
           >
             {/* First Check-In Time */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-7">
-              <div className="grid grid-cols-[1fr_auto] items-end gap-1 w-full">
-                <div>
-                  <FormField
-                    name="first_check_in_time"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel htmlFor="first_check_in_time">
-                          Primera entrada (24hrs)
-                        </FormLabel>
-                        <FormControl>
+              <div className="items-end gap-1 w-full">
+                <FormField
+                  name="first_check_in_time"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel htmlFor="first_check_in_time">
+                        Primera entrada (24hrs)
+                      </FormLabel>
+                      <FormControl>
+                        <div className="grid grid-cols-[1fr_auto] gap-2">
                           <DateTimePicker
                             displayFormat="HH:mm"
                             locale={es}
@@ -154,35 +153,36 @@ export default function AttendanceDialog({
                             lessThanToday
                             className="text-start"
                           />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <Button
-                  type="button"
-                  onClick={() => {
-                    form.setValue("first_check_in_time", null);
-                  }}
-                  variant="outline"
-                  size="icon"
-                >
-                  <RefreshCcw />
-                </Button>
+
+                          <Button
+                            type="button"
+                            onClick={() => {
+                              form.setValue("first_check_in_time", null);
+                            }}
+                            variant="outline"
+                            size="icon"
+                          >
+                            <RefreshCcw />
+                          </Button>
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
 
               {/* First Check-Out Time */}
-              <div className="grid grid-cols-[1fr_auto] items-end gap-1 w-full">
-                <div>
-                  <FormField
-                    name="first_check_out_time"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel htmlFor="first_check_out_time">
-                          Primera salida (24hrs)
-                        </FormLabel>
-                        <FormControl>
+              <div className="items-end gap-1 w-full">
+                <FormField
+                  name="first_check_out_time"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel htmlFor="first_check_out_time">
+                        Primera salida (24hrs)
+                      </FormLabel>
+                      <FormControl>
+                        <div className="grid grid-cols-[1fr_auto] gap-2">
                           <DateTimePicker
                             displayFormat="HH:mm"
                             locale={es}
@@ -200,35 +200,35 @@ export default function AttendanceDialog({
                             hideDate
                             lessThanToday
                           />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <Button
-                  type="button"
-                  onClick={() => {
-                    form.setValue("first_check_out_time", null);
-                  }}
-                  variant="outline"
-                  size="icon"
-                >
-                  <RefreshCcw />
-                </Button>
+                          <Button
+                            type="button"
+                            onClick={() => {
+                              form.setValue("first_check_out_time", null);
+                            }}
+                            variant="outline"
+                            size="icon"
+                          >
+                            <RefreshCcw />
+                          </Button>
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
 
               {/* Second Check-In Time */}
-              <div className="grid grid-cols-[1fr_auto] items-end gap-1 w-full">
-                <div>
-                  <FormField
-                    name="second_check_in_time"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel htmlFor="second_check_in_time">
-                          Segunda entrada (24hrs)
-                        </FormLabel>
-                        <FormControl>
+              <div className="items-end gap-1 w-full">
+                <FormField
+                  name="second_check_in_time"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel htmlFor="second_check_in_time">
+                        Segunda entrada (24hrs)
+                      </FormLabel>
+                      <FormControl>
+                        <div className="grid grid-cols-[1fr_auto] gap-2">
                           <DateTimePicker
                             locale={es}
                             displayFormat="HH:mm"
@@ -246,35 +246,35 @@ export default function AttendanceDialog({
                             hideDate
                             lessThanToday
                           />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <Button
-                  type="button"
-                  onClick={() => {
-                    form.setValue("second_check_in_time", null);
-                  }}
-                  variant="outline"
-                  size="icon"
-                >
-                  <RefreshCcw />
-                </Button>
+                          <Button
+                            type="button"
+                            onClick={() => {
+                              form.setValue("second_check_in_time", null);
+                            }}
+                            variant="outline"
+                            size="icon"
+                          >
+                            <RefreshCcw />
+                          </Button>
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
 
               {/* Second Check-Out Time */}
-              <div className="grid grid-cols-[1fr_auto] items-end gap-1 w-full">
-                <div>
-                  <FormField
-                    name="second_check_out_time"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel htmlFor="second_check_out_time">
-                          Segunda salida (24hrs)
-                        </FormLabel>
-                        <FormControl>
+              <div className="items-end gap-1 w-full">
+                <FormField
+                  name="second_check_out_time"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel htmlFor="second_check_out_time">
+                        Segunda salida (24hrs)
+                      </FormLabel>
+                      <FormControl>
+                        <div className="grid grid-cols-[1fr_auto] gap-2">
                           <DateTimePicker
                             displayFormat="HH:mm"
                             locale={es}
@@ -292,22 +292,22 @@ export default function AttendanceDialog({
                             hideDate
                             lessThanToday
                           />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <Button
-                  type="button"
-                  onClick={() => {
-                    form.setValue("second_check_out_time", null);
-                  }}
-                  variant="outline"
-                  size="icon"
-                >
-                  <RefreshCcw />
-                </Button>
+                          <Button
+                            type="button"
+                            onClick={() => {
+                              form.setValue("second_check_out_time", null);
+                            }}
+                            variant="outline"
+                            size="icon"
+                          >
+                            <RefreshCcw />
+                          </Button>
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
 
               {/* Observation Type */}

@@ -1,5 +1,6 @@
 import { adminFirestoreDb } from "@/lib/firebase.server";
 import type { AttendanceFormType } from "../schema/attendance.schema";
+import { differenceInHours, parseISO } from "date-fns";
 
 export default async function updateAttendance(
   attendanceUid: string,
@@ -15,6 +16,8 @@ export default async function updateAttendance(
       attendanceForm.second_check_in_time,
       attendanceForm.second_check_out_time
     );
+
+    console.log(horasTrabajadas, horasExtras);
 
     if (attendanceForm.observation_type) {
       observationTypeRef = adminFirestoreDb
@@ -50,50 +53,65 @@ function calcularHorasTrabajadasYExtras(
   secondCheckIn: string | null,
   secondCheckOut: string | null
 ) {
-  // Asegurarse de que las horas de entrada y salida sean válidas
-  const firstCheckInDate = firstCheckIn ? new Date(firstCheckIn) : null;
-  const firstCheckOutDate = firstCheckOut ? new Date(firstCheckOut) : null;
-  const secondCheckInDate = secondCheckIn ? new Date(secondCheckIn) : null;
-  const secondCheckOutDate = secondCheckOut ? new Date(secondCheckOut) : null;
+  // Asegurarse de que las horas de entrada y salida sean válidas y convertirlas a fecha UTC
+  const firstCheckInDate = firstCheckIn ? parseISO(firstCheckIn) : null;
+  const firstCheckOutDate = firstCheckOut ? parseISO(firstCheckOut) : null;
+  const secondCheckInDate = secondCheckIn ? parseISO(secondCheckIn) : null;
+  const secondCheckOutDate = secondCheckOut ? parseISO(secondCheckOut) : null;
+
+  console.log(
+    firstCheckInDate,
+    firstCheckOutDate,
+    secondCheckInDate,
+    secondCheckOutDate
+  );
 
   // Verificar si las fechas son válidas
   if (
-    firstCheckInDate instanceof Date &&
+    firstCheckInDate &&
+    firstCheckOutDate &&
     !isNaN(firstCheckInDate.getTime()) &&
-    firstCheckOutDate instanceof Date &&
     !isNaN(firstCheckOutDate.getTime())
   ) {
     // Calcular la duración de la primera jornada
-    const primeraJornada =
-      (firstCheckOutDate.getTime() - firstCheckInDate.getTime()) /
-      (1000 * 60 * 60); // Convertir de milisegundos a horas
+    const primeraJornada = differenceInHours(
+      firstCheckOutDate,
+      firstCheckInDate
+    );
 
     let segundaJornada = 0;
 
     // Si existen las segundas horas de entrada y salida
     if (
-      secondCheckInDate instanceof Date &&
+      secondCheckInDate &&
+      secondCheckOutDate &&
       !isNaN(secondCheckInDate.getTime()) &&
-      secondCheckOutDate instanceof Date &&
       !isNaN(secondCheckOutDate.getTime())
     ) {
       // Calcular la duración de la segunda jornada
-      segundaJornada =
-        (secondCheckOutDate.getTime() - secondCheckInDate.getTime()) /
-        (1000 * 60 * 60); // Convertir de milisegundos a horas
+      segundaJornada = differenceInHours(secondCheckOutDate, secondCheckInDate);
     }
 
+    const tiempoEstandar = 8;
+
     // Calcular las horas trabajadas totales
-    const horasTrabajadas = primeraJornada + segundaJornada;
+    const horasTrabajadasTotales = primeraJornada + segundaJornada;
 
     // Definir el tiempo estándar de trabajo (por ejemplo, 8 horas)
-    const tiempoEstandar = 8;
 
     // Calcular las horas extras
     const horasExtras =
-      horasTrabajadas > tiempoEstandar ? horasTrabajadas - tiempoEstandar : 0;
+      horasTrabajadasTotales > tiempoEstandar
+        ? horasTrabajadasTotales - tiempoEstandar
+        : 0;
 
-    return { horasTrabajadas, horasExtras };
+    return {
+      horasTrabajadas:
+        horasTrabajadasTotales > tiempoEstandar
+          ? tiempoEstandar
+          : horasTrabajadasTotales,
+      horasExtras,
+    };
   } else {
     // Si no se han proporcionado las primeras horas de entrada o salida válidas, devolver 0
     return { horasTrabajadas: 0, horasExtras: 0 };

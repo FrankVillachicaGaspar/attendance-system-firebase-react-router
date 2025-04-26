@@ -26,10 +26,10 @@ import type { FirebaseObservationType } from "@/common/types/firebase/FirebaseOb
 
 const formSchema = z.object({
   name: z.string().min(2, {
-    message: "Name must be at least 2 characters.",
+    message: "El nombre debe tener al menos 2 caracteres.",
   }),
   description: z.string().min(5, {
-    message: "Description must be at least 5 characters.",
+    message: "La descripción debe tener al menos 5 caracteres.",
   }),
 });
 
@@ -104,7 +104,7 @@ export function ObservationTypeDialog({
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Name</FormLabel>
+                  <FormLabel>Nombre</FormLabel>
                   <FormControl>
                     <Input
                       autoComplete="off"
@@ -121,7 +121,7 @@ export function ObservationTypeDialog({
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Description</FormLabel>
+                  <FormLabel>Descripción</FormLabel>
                   <FormControl>
                     <Textarea
                       placeholder="Descripción del tipo de observación"
