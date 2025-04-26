@@ -2,7 +2,7 @@ import type {
   FirebaseDepartment,
   FirebaseShortDepartment,
 } from "./FirebaseDepartment.type";
-import type { FirebaseJobPosition } from "./FirebaseJobPosition";
+import type { FirebaseJobPosition, FirebaseShortJobPosition } from "./FirebaseJobPosition";
 import type { FirebaseRole } from "./FirebaseRole.type";
 
 export type FirebaseEmployee = {
@@ -29,4 +29,5 @@ export type FirebaseShortEmployee = {
   lastname: string;
   dni: string;
   department: FirebaseShortDepartment;
+  job_position: FirebaseShortJobPosition;
 };

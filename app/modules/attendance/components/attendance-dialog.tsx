@@ -31,14 +31,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useFetcher } from "react-router";
+import { useFetcher, useLocation } from "react-router";
 import type { Route } from ".react-router/types/app/routes/admin/sections/+types/attendance";
 import executeToastList from "@/common/utils/execute-toast-list.util";
 import { AttendanceIntent } from "../enums/attendance-intents.enum";
 import { es } from "date-fns/locale";
-import { parse } from "date-fns";
+import { format, parse, parseISO, startOfToday } from "date-fns";
 import PulseLoader from "react-spinners/PulseLoader";
 import { RefreshCcw } from "lucide-react";
+import _ from "lodash";
 
 interface Props {
   open: boolean;
@@ -53,8 +54,18 @@ export default function AttendanceDialog({
   attendance,
   observationTypes,
 }: Props) {
+  const location = useLocation();
   const fetcher = useFetcher();
   const fetcherData = fetcher.data as Route.ComponentProps["actionData"];
+
+  const handleGetDateFromSearchParams = () => {
+    const searchParams = new URLSearchParams(location.search);
+    const date = searchParams.get("date");
+    if (date) {
+      return parseISO(date);
+    }
+    return undefined;
+  };
 
   const initialData: AttendanceFormType = {
     first_check_in_time: attendance?.first_check_in_time ?? null,
@@ -86,15 +97,6 @@ export default function AttendanceDialog({
     onOpenChange(false);
   };
 
-  const handleGetDateFromSearchParams = () => {
-    const searchParams = new URLSearchParams(location.search);
-    const date = searchParams.get("date");
-    if (date) {
-      return parse(date, "yyyy-MM-dd", new Date());
-    }
-    return undefined;
-  };
-
   useEffect(() => {
     form.reset(initialData);
   }, [attendance]);
@@ -108,9 +110,14 @@ export default function AttendanceDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="min-w-2xl">
-        <DialogTitle>Asistencia</DialogTitle>
+        <DialogTitle>
+          Asistencia - {" "}
+          {format(handleGetDateFromSearchParams() ?? new Date(), "dd-MM-yyyy")}
+        </DialogTitle>
         <DialogDescription>
-          Complete the form to register attendance data.
+          Empleado{" "}
+          {_.startCase(_.toLower(attendance?.employee.names))}{" "}
+          {_.startCase(_.toLower(attendance?.employee.lastname))}
         </DialogDescription>
         <Form {...form}>
           <form
@@ -118,7 +125,7 @@ export default function AttendanceDialog({
             className="space-y-4 md:space-y-6"
           >
             {/* First Check-In Time */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-7">
               <div className="grid grid-cols-[1fr_auto] items-end gap-1 w-full">
                 <div>
                   <FormField
@@ -126,23 +133,23 @@ export default function AttendanceDialog({
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel htmlFor="first_check_in_time">
-                          Primera entrada
+                          Primera entrada (24hrs)
                         </FormLabel>
                         <FormControl>
                           <DateTimePicker
-                            displayFormat="dd 'de' MMMM 'del' yyyy 'a las' HH:mm"
+                            displayFormat="HH:mm"
                             locale={es}
                             placeholder="Seleccione la fecha y hora"
                             date={
-                              handleGetDateFromSearchParams()
+                              field.value
+                                ? parseISO(field.value)
+                                : handleGetDateFromSearchParams()
                                 ? handleGetDateFromSearchParams()
-                                : field.value
-                                ? new Date(field.value)
-                                : undefined
+                                : startOfToday()
                             }
-                            setDate={(e: Date | undefined) =>
-                              field.onChange(e?.toISOString() ?? "")
-                            }
+                            setDate={(e: Date | undefined) => {
+                              field.onChange(e?.toISOString() ?? "");
+                            }}
                             hideDate
                             lessThanToday
                             className="text-start"
@@ -173,14 +180,20 @@ export default function AttendanceDialog({
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel htmlFor="first_check_out_time">
-                          Primera salida
+                          Primera salida (24hrs)
                         </FormLabel>
                         <FormControl>
                           <DateTimePicker
-                            displayFormat="dd 'de' MMMM 'del' yyyy 'a las' HH:mm"
+                            displayFormat="HH:mm"
                             locale={es}
                             placeholder="Seleccione la fecha y hora"
-                            date={field.value ? new Date(field.value) : undefined}
+                            date={
+                              field.value
+                                ? parseISO(field.value)
+                                : handleGetDateFromSearchParams()
+                                ? handleGetDateFromSearchParams()
+                                : startOfToday()
+                            }
                             setDate={(e: Date | undefined) =>
                               field.onChange(e?.toISOString() ?? "")
                             }
@@ -213,14 +226,20 @@ export default function AttendanceDialog({
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel htmlFor="second_check_in_time">
-                          Segunda entrada
+                          Segunda entrada (24hrs)
                         </FormLabel>
                         <FormControl>
                           <DateTimePicker
                             locale={es}
-                            displayFormat="dd 'de' MMMM 'del' yyyy 'a las' HH:mm"
+                            displayFormat="HH:mm"
                             placeholder="Seleccione la fecha y hora"
-                            date={field.value ? new Date(field.value) : undefined}
+                            date={
+                              field.value
+                                ? parseISO(field.value)
+                                : handleGetDateFromSearchParams()
+                                ? handleGetDateFromSearchParams()
+                                : startOfToday()
+                            }
                             setDate={(e: Date | undefined) =>
                               field.onChange(e?.toISOString() ?? "")
                             }
@@ -253,14 +272,20 @@ export default function AttendanceDialog({
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel htmlFor="second_check_out_time">
-                          Segunda salida
+                          Segunda salida (24hrs)
                         </FormLabel>
                         <FormControl>
                           <DateTimePicker
-                            displayFormat="dd 'de' MMMM 'del' yyyy 'a las' HH:mm"
+                            displayFormat="HH:mm"
                             locale={es}
                             placeholder="Seleccione la fecha y hora"
-                            date={field.value ? new Date(field.value) : undefined}
+                            date={
+                              field.value
+                                ? parseISO(field.value)
+                                : handleGetDateFromSearchParams()
+                                ? handleGetDateFromSearchParams()
+                                : startOfToday()
+                            }
                             setDate={(e: Date | undefined) =>
                               field.onChange(e?.toISOString() ?? "")
                             }

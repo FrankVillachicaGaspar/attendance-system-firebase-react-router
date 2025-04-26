@@ -51,6 +51,8 @@ export default async function generateAttendanceByDepartment(
           second_check_in_time: null,
           second_check_out_time: null,
           observation_type: null,
+          work_hours: 0,
+          overtime: 0,
           observation: null,
           created_at: Timestamp.now(),
           deleted_at: null,

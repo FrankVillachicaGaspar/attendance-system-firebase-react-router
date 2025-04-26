@@ -53,7 +53,7 @@ export async function loader({ request }: Route.LoaderArgs) {
       page,
       skip,
       filters: {
-        department: department ?? departmentList[0].uid,
+        department: department ?? undefined,
         search: search ?? "",
       },
     });

@@ -1,5 +1,27 @@
 import { z } from "zod";
 
+import { parseISO, isValid } from "date-fns"; // Importamos parseISO y isValid de date-fns
+
+// Función para calcular la edad
+const calculateAge = (birthDate: string): number => {
+  // Asegurarse de que birthDate esté en un formato ISO válido
+  const parsedDate = parseISO(birthDate);
+  if (!isValid(parsedDate)) {
+    throw new Error("Fecha de nacimiento inválida.");
+  }
+
+  const today = new Date();
+  let age = today.getFullYear() - parsedDate.getFullYear();
+  const month = today.getMonth();
+  if (
+    month < parsedDate.getMonth() ||
+    (month === parsedDate.getMonth() && today.getDate() < parsedDate.getDate())
+  ) {
+    age--;
+  }
+  return age;
+};
+
 export const employeeFormSchema = z.object({
   department: z.string().min(1, {
     message: "Debe seleccionar un departamento",
@@ -38,9 +60,14 @@ export const employeeFormSchema = z.object({
     .max(12, {
       message: "El número de teléfono no debe tener mas de 12 caracteres",
     }),
-  birth_date: z.string().min(1, {
-    message: "Debe ingresar la fecha de nacimiento",
-  }),
+  birth_date: z
+    .string()
+    .min(1, {
+      message: "Debe ingresar la fecha de nacimiento",
+    })
+    .refine((birthDate) => calculateAge(birthDate) >= 18, {
+      message: "La persona debe ser mayor de 18 años",
+    }),
   hiring_date: z.string().min(1, {
     message: "Debe ingresar la fecha de contratación",
   }),

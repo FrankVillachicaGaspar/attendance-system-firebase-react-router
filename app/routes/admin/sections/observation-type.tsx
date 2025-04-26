@@ -85,7 +85,7 @@ export async function action({
     } catch (error: any) {
       return {
         toast: {
-          title: "Error al actualizar el puesto de trabajo",
+          title: "Error al actualizar el tipo de observación",
           description: error.message,
           type: "error",
           closeButton: true,

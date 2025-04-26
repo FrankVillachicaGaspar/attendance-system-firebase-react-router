@@ -32,7 +32,7 @@ export default async function findAllEmployeeWithPaginationAndFilters({
     .limit(limit)
     .offset(skip);
 
-  if (filters.department) {
+  if (filters.department && filters.department !== "Todos") {
     const departmentRef = adminFirestoreDb
       .collection("department")
       .doc(filters.department);

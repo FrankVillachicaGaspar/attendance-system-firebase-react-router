@@ -5,7 +5,7 @@ import {
   type EmployeeFormType,
 } from "../schema/employee-form.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -50,6 +50,9 @@ import type { FirebaseJobPosition } from "@/common/types/firebase/FirebaseJobPos
 import type { FirebaseDepartment } from "@/common/types/firebase/FirebaseDepartment.type";
 import type { FirebaseRole } from "@/common/types/firebase/FirebaseRole.type";
 import { DialogDescription } from "@radix-ui/react-dialog";
+import { DateTimePicker } from "@/components/ui/date-time-picker";
+import { parseISO } from "date-fns";
+import _ from "lodash";
 
 interface Props {
   open: boolean;
@@ -98,8 +101,13 @@ export default function EmployeeDialog({
     onSave(values);
   };
 
+  const [namesModified, setNamesModified] = useState(false);
+  const [lastnameModified, setLastnameModified] = useState(false);
+
   useEffect(() => {
     form.reset(initialValues);
+    setNamesModified(false);
+    setLastnameModified(false);
   }, [employee]);
 
   return (
@@ -126,7 +134,15 @@ export default function EmployeeDialog({
                       <Input
                         autoComplete="off"
                         placeholder="Nombres"
-                        {...field}
+                        value={
+                          !namesModified
+                            ? _.startCase(field.value)
+                            : field.value
+                        }
+                        onChange={(e) => {
+                          field.onChange(e.target.value);
+                          setNamesModified(true);
+                        }}
                       />
                     </FormControl>
                     <FormMessage />
@@ -144,7 +160,15 @@ export default function EmployeeDialog({
                       <Input
                         autoComplete="off"
                         placeholder="Apellidos"
-                        {...field}
+                        value={
+                          !lastnameModified
+                            ? _.startCase(field.value)
+                            : field.value
+                        }
+                        onChange={(e) => {
+                          field.onChange(e.target.value);
+                          setLastnameModified(true);
+                        }}
                       />
                     </FormControl>
                     <FormMessage />
@@ -178,7 +202,13 @@ export default function EmployeeDialog({
                   <FormItem>
                     <FormLabel>Fecha de nacimiento</FormLabel>
                     <FormControl>
-                      <Input autoComplete="off" type="date" {...field} />
+                      <DateTimePicker
+                        displayFormat="dd-MM-yyyy"
+                        date={field.value ? parseISO(field.value) : undefined}
+                        setDate={(value) => field.onChange(value?.toISOString())}
+                        lessThanToday
+                        hideTime
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -441,7 +471,13 @@ export default function EmployeeDialog({
                   <FormItem>
                     <FormLabel>Fecha de contratación</FormLabel>
                     <FormControl>
-                      <Input autoComplete="off" type="date" {...field} />
+                      <DateTimePicker
+                        displayFormat="dd-MM-yyyy"
+                        date={field.value ? parseISO(field.value) : undefined}
+                        setDate={(value) => field.onChange(value?.toISOString())}
+                        hideTime
+                        lessThanToday
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

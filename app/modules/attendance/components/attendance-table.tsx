@@ -15,7 +15,7 @@ import { AttendanceIntent } from "../enums/attendance-intents.enum";
 import PulseLoader from "react-spinners/PulseLoader";
 import { format } from "date-fns";
 import { SearchableSelect } from "@/components/ui/search-input-select";
-
+import _ from "lodash";
 interface AttendanceTableProps {
   attendance: FirebaseAttendance[];
   departments: FirebaseDepartment[];
@@ -123,10 +123,12 @@ export function AttendanceTable({
               cell: ({ row }) => (
                 <div className="flex items-center gap-2">
                   <User className="h-4 w-4 text-muted-foreground" />
-                  <div>
-                    <div className="font-medium">
-                      {row.original.employee.names}{" "}
-                      {row.original.employee.lastname}
+                  <div className="flex flex-col gap-1">
+                    <div className="font-medium text-md">
+                      {_.startCase(row.original.employee.names)}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      {_.startCase(row.original.employee.lastname)}
                     </div>
                     <div className="text-sm text-muted-foreground">
                       DNI: {row.original.employee.dni}
@@ -220,6 +222,34 @@ export function AttendanceTable({
               ),
             },
             {
+              header: "Horas Trabajadas",
+              cell: ({ row }) =>
+                row.original.work_hours ? (
+                  <p className="w-full">
+                    {row.original.work_hours}{" "}
+                    {row.original.work_hours > 1 ? "horas" : "hora"}
+                  </p>
+                ) : (
+                  <p className="w-full text-muted-foreground">Por calcular</p>
+                ),
+            },
+            {
+              header: "Horas Extras",
+              cell: ({ row }) =>
+                row.original.overtime ? (
+                  <p className="w-full">
+                    {row.original.overtime}{" "}
+                    {row.original.overtime > 1 ? "horas" : "hora"}
+                  </p>
+                ) : (
+                  <p className="w-full text-muted-foreground">
+                    {row.original.work_hours === 8
+                      ? "Sin horas extras"
+                      : "Por calcular"}
+                  </p>
+                ),
+            },
+            {
               header: "Observación",
               cell: ({ row }) => (
                 <div className="flex items-center gap-2">
@@ -227,9 +257,7 @@ export function AttendanceTable({
                     {row.original.observation_type ? (
                       row.original.observation_type.name
                     ) : (
-                      <span className="text-muted-foreground">
-                        Ninguna
-                      </span>
+                      <span className="text-muted-foreground">Ninguna</span>
                     )}
                   </div>
                 </div>

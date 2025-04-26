@@ -113,6 +113,9 @@ async function getAttendance(doc: QueryDocumentSnapshot<any>) {
   const departmentRef: DocumentReference = employeeSnap.data()?.department;
   const departmentSnap = await departmentRef.get();
 
+  const jobPositionRef: DocumentReference = employeeSnap.data()?.job_position;
+  const jobPositionSnap = await jobPositionRef.get();
+
   if (!employeeSnap.exists || !departmentSnap.exists) {
     throw new Error("Error al obtener las asistencias");
   }
@@ -136,11 +139,18 @@ async function getAttendance(doc: QueryDocumentSnapshot<any>) {
         name: departmentSnap.data()!.name,
         description: departmentSnap.data()!.description,
       },
+      job_position: {
+        uid: jobPositionSnap.id,
+        name: jobPositionSnap.data()!.name,
+        description: jobPositionSnap.data()!.description,
+      },
     },
     first_check_in_time: doc.data().first_check_in_time,
     first_check_out_time: doc.data().first_check_out_time,
     second_check_in_time: doc.data().second_check_in_time,
     second_check_out_time: doc.data().second_check_out_time,
+    work_hours: doc.data().work_hours,
+    overtime: doc.data().overtime,
     observation: doc.data().observation,
     created_at: format(doc.data().created_at.toDate(), "dd/MM/yyyy HH:mm"),
   } as FirebaseAttendance;

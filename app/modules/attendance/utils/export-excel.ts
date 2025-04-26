@@ -1,24 +1,37 @@
 import type { FirebaseAttendance } from "@/common/types/firebase/FirebaseAttendance";
+import { format } from "date-fns";
+import _ from "lodash";
 import * as XLSX from "xlsx";
 
 export default function exportToExcel(attendanceList: FirebaseAttendance[]) {
   // Formatear los datos de acuerdo a las propiedades que deseas mostrar en el archivo Excel
   const formattedData = attendanceList.map((attendance) => ({
-    "Nombre del empleado": `${attendance.employee.names} ${attendance.employee.lastname}`,
+    "Nombre del empleado": `${_.startCase(
+      _.toLower(attendance.employee.names)
+    )} ${_.startCase(_.toLower(attendance.employee.lastname))}`,
     DNI: attendance.employee.dni,
     Departamento: attendance.employee.department.name,
-    "Entrada del primer turno":
-      attendance.first_check_in_time ?? "No registrado",
-    "Salida del primer turno":
-      attendance.first_check_out_time ?? "No registrado",
-    "Entrada del segundo turno":
-      attendance.second_check_in_time ?? "No registrado",
-    "Salida del segundo turno":
-      attendance.second_check_out_time ?? "No registrado",
+    "Puesto de trabajo": attendance.employee.job_position.name,
+    "Entrada del primer turno": attendance.first_check_in_time
+      ? format(attendance.first_check_in_time, "dd-MM-yyyy HH:mm")
+      : "No registrado",
+    "Salida del primer turno": attendance.first_check_out_time
+      ? format(attendance.first_check_out_time, "dd-MM-yyyy HH:mm")
+      : "No registrado",
+    "Entrada del segundo turno": attendance.second_check_in_time
+      ? format(attendance.second_check_in_time, "dd-MM-yyyy HH:mm")
+      : "No registrado",
+    "Salida del segundo turno": attendance.second_check_out_time
+      ? format(attendance.second_check_out_time, "dd-MM-yyyy HH:mm")
+      : "No registrado",
     "Tipo de observación": attendance.observation_type
       ? attendance.observation_type.name
       : "N/A",
-    Observación: attendance.observation,
+    Observación: attendance.observation ?? "N/A",
+    "Horas trabajadas": attendance.work_hours ?? "Por calcular",
+    "Horas extras":
+      attendance.overtime ??
+      (attendance.work_hours === 8 ? "Sin horas extras" : "Por calcular"),
   }));
 
   // Crear una nueva hoja de trabajo (worksheet)

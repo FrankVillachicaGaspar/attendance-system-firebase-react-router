@@ -49,7 +49,11 @@ export function DateTimePicker({
           variant="outline"
           className={cn("flex justify-start font-normal w-full", className)}
         >
-          <CalendarIcon className="mr-1 h-4 w-4" />
+          {!hideDate ? (
+            <CalendarIcon className="mr-1 h-4 w-4" />
+          ) : (
+            <Clock className="mr-1 h-4 w-4" />
+          )}
           <p className={cn(date ? "text-sm" : "text-sm text-gray-500")}>
             {date ? format(date, displayFormat, { locale }) : placeholder}
           </p>

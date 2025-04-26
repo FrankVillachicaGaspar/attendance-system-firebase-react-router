@@ -5,3 +5,9 @@ export type FirebaseJobPosition = {
   created_at: string;
   deleted_at: string | null;
 };
+
+export type FirebaseShortJobPosition = {
+  uid: string;
+  name: string;
+  description: string;
+};

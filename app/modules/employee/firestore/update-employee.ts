@@ -13,7 +13,7 @@ export async function updateEmployee(uid: string, employee: EmployeeFormType) {
 
     const roleSnap = await adminFirestoreDb.doc(`role/${employee.role}`).get();
     const jobPositionSnap = await adminFirestoreDb
-      .doc(`job-position/${employee.job_position}`)
+      .doc(`job_position/${employee.job_position}`)
       .get();
 
     if (!departmentSnap.exists || !roleSnap.exists || !jobPositionSnap.exists) {
@@ -25,8 +25,8 @@ export async function updateEmployee(uid: string, employee: EmployeeFormType) {
     // Paso 3: Crear el objeto de actualización para el empleado
     const employeeDoc = {
       email: employee.email,
-      names: employee.names,
-      lastname: employee.lastname,
+      names: employee.names.toLowerCase(),
+      lastname: employee.lastname.toLowerCase(),
       dni: employee.dni,
       birth_date: employee.birth_date,
       hiring_date: employee.hiring_date,

@@ -8,7 +8,7 @@ interface Props {
   departments: FirebaseDepartment[];
 }
 export default function EmployeeDepartmentFilters({ departments }: Props) {
-  const [department, setDepartment] = useState<string>(departments[0].uid);
+  const [department, setDepartment] = useState<string>("Todos");
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -26,10 +26,16 @@ export default function EmployeeDepartmentFilters({ departments }: Props) {
     <div className="flex flex-col gap-2 min-w-60 w-full md:max-w-fit">
       <Label>Departamento:</Label>
       <SearchableSelect
-        options={departments.map((department) => ({
-          value: department.uid,
-          label: department.name,
-        }))}
+        options={[
+          {
+            value: "Todos",
+            label: "Todos",
+          },
+          ...departments.map((department) => ({
+            value: department.uid,
+            label: department.name,
+          })),
+        ]}
         value={department}
         onChange={setDepartment}
         placeholder="Seleccionar departamento"

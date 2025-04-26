@@ -63,8 +63,8 @@ export async function action({
     }
     return {
       toast: {
-        title: "Departamento creado exitosamente",
-        description: "Departamento creado exitosamente",
+        title: "Puesto de trabajo creado exitosamente",
+        description: "Puesto de trabajo creado exitosamente",
         type: "success",
         closeButton: true,
         position: "top-center",
@@ -95,8 +95,8 @@ export async function action({
     }
     return {
       toast: {
-        title: "Departamento actualizado exitosamente",
-        description: "Departamento actualizado exitosamente",
+        title: "Puesto de trabajo actualizado exitosamente",
+        description: "Puesto de trabajo actualizado exitosamente",
         type: "success",
         closeButton: true,
         position: "top-center",
@@ -123,8 +123,8 @@ export async function action({
     }
     return {
       toast: {
-        title: "Departamento eliminado exitosamente",
-        description: "Departamento eliminado exitosamente",
+        title: "Puesto de trabajo eliminado exitosamente",
+        description: "Puesto de trabajo eliminado exitosamente",
         type: "success",
         closeButton: true,
         position: "top-center",

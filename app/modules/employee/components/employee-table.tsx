@@ -118,9 +118,7 @@ export default function EmployeeTable({
         header: "Nombres",
         cell: ({ row }) => (
           <div>
-            <div className="font-medium">
-              {_.startCase(row.original.names)}
-            </div>
+            <div className="font-medium">{_.startCase(row.original.names)}</div>
             <div className="text-sm text-muted-foreground">
               {_.startCase(row.original.lastname)}
             </div>
@@ -225,7 +223,7 @@ export default function EmployeeTable({
   return (
     <Card>
       <CardHeader className="flex flex-col md:flex-row gap-4 justify-between items-end">
-        <CardTitle className="text-2xl flex flex-col justify-start mb-4 gap-3 items-center w-full md:w-fit">
+        <CardTitle className="text-2xl flex flex-col justify-start mb-4 md:mb-0 gap-3 items-end w-full md:w-fit">
           <div className="flex gap-2 w-full">
             <UsersIcon size={30} />
             <span className="text-2xl">Employees</span>
