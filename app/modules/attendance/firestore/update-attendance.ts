@@ -92,7 +92,7 @@ function calcularHorasTrabajadasYExtras(
       segundaJornada = differenceInHours(secondCheckOutDate, secondCheckInDate);
     }
 
-    const tiempoEstandar = 8;
+    const tiempoEstandar = 15;
 
     // Calcular las horas trabajadas totales
     const horasTrabajadasTotales = primeraJornada + segundaJornada;

@@ -1,14 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import {
-  Check,
-  Edit,
-  Plus,
-  SearchIcon,
-  Trash2,
-  UsersIcon,
-  X,
-} from "lucide-react";
+import { Check, Edit, Plus, Trash2, UsersIcon, X } from "lucide-react";
 import EmployeeDialog from "./employee-dialog";
 import { useEffect, useMemo, useState } from "react";
 import type { FirebaseEmployee } from "@/common/types/firebase/FirebaseEmployee.type";
@@ -30,7 +22,6 @@ import EmployeeDepartmentFilter from "./emloyee-department-filters";
 import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router";
 import { useDebouncedValue } from "@mantine/hooks";
-import { fi } from "date-fns/locale";
 import _ from "lodash";
 interface Props {
   employeePaginationResponse: PaginationResponse<FirebaseEmployee[]>;
@@ -118,9 +109,17 @@ export default function EmployeeTable({
         header: "Nombres",
         cell: ({ row }) => (
           <div>
-            <div className="font-medium">{_.startCase(row.original.names)}</div>
+            <div className="font-medium">
+              {row.original.names
+                .split(" ")
+                .map((name) => _.capitalize(name))
+                .join(" ")}
+            </div>
             <div className="text-sm text-muted-foreground">
-              {_.startCase(row.original.lastname)}
+              {row.original.lastname
+                .split(" ")
+                .map((lastname) => _.capitalize(lastname))
+                .join(" ")}
             </div>
           </div>
         ),
@@ -226,7 +225,7 @@ export default function EmployeeTable({
         <CardTitle className="text-2xl flex flex-col justify-start mb-4 md:mb-0 gap-3 items-end w-full md:w-fit">
           <div className="flex gap-2 w-full">
             <UsersIcon size={30} />
-            <span className="text-2xl">Employees</span>
+            <span className="text-2xl">Empleados</span>
           </div>
           <div className="flex gap-2 w-full md:min-w-xs md:mr-auto">
             <Input

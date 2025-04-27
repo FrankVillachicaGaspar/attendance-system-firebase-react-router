@@ -1,9 +1,9 @@
 import { adminFirestoreDb } from "@/lib/firebase.server";
 import { endOfToday, startOfToday } from "date-fns";
-import { Timestamp } from "firebase-admin/firestore";
 
 export default async function verifyTodayAttendanceByEmployee(
-  employeeRef: FirebaseFirestore.DocumentReference
+  employeeRef: FirebaseFirestore.DocumentReference,
+  date: string
 ) {
   const todayStart = startOfToday();
   const todayEnd = endOfToday();
@@ -13,8 +13,7 @@ export default async function verifyTodayAttendanceByEmployee(
   const query = adminFirestoreDb
     .collection("attendance")
     .where("employee", "==", employeeRef)
-    .where("created_at", ">=", Timestamp.fromDate(todayStart))
-    .where("created_at", "<=", Timestamp.fromDate(todayEnd));
+    .where("created_at_date", "==", date);
 
   const snapshot = await query.get();
 

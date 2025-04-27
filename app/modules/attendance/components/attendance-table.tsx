@@ -27,6 +27,9 @@ export function AttendanceTable({
   departments,
   observationTypes,
 }: AttendanceTableProps) {
+  const [attendanceList, setAttendanceList] = useState<FirebaseAttendance[]>(
+    []
+  );
   const [openModal, setOpenModal] = useState(false);
   const [selectedAttendance, setSelectedAttendance] = useState<
     FirebaseAttendance | undefined
@@ -79,6 +82,10 @@ export function AttendanceTable({
     setDepartmentFilter(getDepartmentFilter());
   }, [attendance]);
 
+  useEffect(() => {
+    setAttendanceList(attendance);
+  }, [attendance]);
+
   return (
     <Card>
       <CardHeader className="flex flex-wrap flex-row items-center justify-between gap-4 md:gap-0">
@@ -116,7 +123,7 @@ export function AttendanceTable({
       </CardHeader>
       <CardContent>
         <SimpleCrudTable
-          data={attendance}
+          data={attendanceList}
           columns={[
             {
               header: "Empleado",

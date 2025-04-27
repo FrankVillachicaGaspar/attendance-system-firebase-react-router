@@ -2,6 +2,7 @@ import type { FirebaseDepartment } from "@/common/types/firebase/FirebaseDepartm
 import { adminFirestoreDb } from "@/lib/firebase.server";
 import verifyTodayAttendanceByEmployee from "./verify-today-attendance-by-employee";
 import { Timestamp } from "firebase-admin/firestore";
+import { format } from "date-fns";
 
 /**
  * Genera asistencias para los empleados de un departamento especifico
@@ -9,7 +10,8 @@ import { Timestamp } from "firebase-admin/firestore";
  * @returns {Promise<number>} - Cantidad de asistencias generadas
  */
 export default async function generateAttendanceByDepartment(
-  departmentUid: string
+  departmentUid: string,
+  date: string
 ): Promise<number> {
   let generateAttendanceCount = 0;
   const departmentRef = adminFirestoreDb
@@ -39,7 +41,7 @@ export default async function generateAttendanceByDepartment(
     // Usamos for...of para esperar a que las promesas se resuelvan
     for (const doc of employeesSnap.docs) {
       const employeeRef = doc.ref;
-      const verify = await verifyTodayAttendanceByEmployee(employeeRef);
+      const verify = await verifyTodayAttendanceByEmployee(employeeRef, date);
 
       if (verify) {
         generateAttendanceCount++;
@@ -55,6 +57,7 @@ export default async function generateAttendanceByDepartment(
           overtime: 0,
           observation: null,
           created_at: Timestamp.now(),
+          created_at_date: date,
           deleted_at: null,
         });
       }

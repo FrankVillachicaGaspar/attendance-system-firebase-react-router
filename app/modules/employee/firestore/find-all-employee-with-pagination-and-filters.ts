@@ -23,37 +23,28 @@ export default async function findAllEmployeeWithPaginationAndFilters({
   page: number;
   filters: Filters;
 }): Promise<PaginationResponse<FirebaseEmployee[]>> {
+  // Comenzamos con la referencia base sin aplicar limit ni offset
   const employeeCollectionRef = adminFirestoreDb
     .collection("employee")
-    .where("deleted_at", "==", null);
+    .where("deleted_at", "==", null)
+    .orderBy("created_at", "desc");
 
-  let employeeListRef = employeeCollectionRef
-    .orderBy("created_at", "desc")
-    .limit(limit)
-    .offset(skip);
+  let employeeListRef = employeeCollectionRef;
 
+  // Aplicamos filtro por departamento si es necesario
   if (filters.department && filters.department !== "Todos") {
+    console.log("Department - filters.department", filters.department);
     const departmentRef = adminFirestoreDb
       .collection("department")
       .doc(filters.department);
     employeeListRef = employeeListRef.where("department", "==", departmentRef);
   }
 
-  if (filters.search && filters.search.trim() !== "") {
-    const searchTerm = filters.search.toLowerCase().trim();
-
-    const [firstName, lastName] = searchTerm.split(" ");
-
-    employeeListRef = employeeListRef
-      .where("names", ">=", firstName)
-      .where("names", "<=", firstName + "\uf8ff")
-      .where("lastname", ">=", lastName || "")
-      .where("lastname", "<=", lastName + "\uf8ff" || "\uf8ff");
-  }
-
+  // Obtenemos todos los empleados con los filtros de departamento aplicados
   const employeeListSnap = await employeeListRef.get();
 
-  const employees = await Promise.all(
+  // Obtenemos los datos completos de cada empleado
+  const allEmployees = await Promise.all(
     employeeListSnap.docs.map(async (doc) => {
       if (doc.exists) {
         return await getEmployeeData(doc);
@@ -62,11 +53,44 @@ export default async function findAllEmployeeWithPaginationAndFilters({
     })
   );
 
-  const { totalItems, totalPages, nextPage, prevPage } =
-    await getPaginationMetadata(employeeListRef, page, limit);
+  // Filtramos los empleados nulos
+  let filteredEmployees = allEmployees.filter(
+    (employee) => employee !== null
+  ) as FirebaseEmployee[];
+
+  // Aplicamos el filtro de búsqueda por nombre y apellido si es necesario
+  if (filters.search && filters.search.trim() !== "") {
+    const searchTerm = normalizeText(filters.search.trim());
+
+    filteredEmployees = filteredEmployees.filter((employee) => {
+      // Concatenamos nombres y apellidos para buscar coincidencias
+      const fullName = normalizeText(
+        `${employee.names?.toLowerCase() || ""} ${
+          employee.lastname?.toLowerCase() || ""
+        }`
+      );
+      return fullName.includes(searchTerm);
+    });
+  }
+
+  // Filtramos los empleados que no tienen un departamento eliminado
+  filteredEmployees = filteredEmployees.filter((employee) => {
+    return employee.department.deleted_at === null;
+  });
+
+  // Calculamos el total de elementos después de aplicar todos los filtros
+  const totalItems = filteredEmployees.length;
+  const totalPages = Math.ceil(totalItems / limit);
+
+  // Aplicamos la paginación manualmente
+  const paginatedEmployees = filteredEmployees.slice(skip, skip + limit);
+
+  // Calculamos metadata de paginación
+  const nextPage = page < totalPages ? page + 1 : null;
+  const prevPage = page > 1 ? page - 1 : null;
 
   return {
-    data: employees.filter((employee) => employee !== null),
+    data: paginatedEmployees,
     page,
     totalItems,
     totalPages,
@@ -104,4 +128,16 @@ async function getEmployeeData(doc: QueryDocumentSnapshot<any>) {
       ...departmentSnap.data(),
     },
   } as FirebaseEmployee;
+}
+
+/**
+ * Normaliza un texto eliminando acentos y convirtiéndolo a minúsculas
+ * @param text Texto a normalizar
+ * @returns Texto normalizado sin acentos y en minúsculas
+ */
+function normalizeText(text: string): string {
+  return text
+    .toLowerCase()
+    .normalize("NFD") // Descompone los caracteres acentuados
+    .replace(/[\u0300-\u036f]/g, ""); // Elimina los diacríticos
 }

@@ -13,5 +13,6 @@ export type FirebaseAttendance = {
   work_hours: number;
   overtime: number;
   created_at: string;
+  created_at_date: string;
   deleted_at: string | null;
 };

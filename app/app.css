@@ -178,6 +178,10 @@ body {
   --color-5: hsl(90 100% 63%);
 }
 
+button {
+  @apply cursor-pointer;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

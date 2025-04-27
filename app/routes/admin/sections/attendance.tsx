@@ -7,28 +7,42 @@ import findAllAttendanceWithFilters, {
 } from "@/modules/attendance/firestore/find-all-attendance-with-filters";
 import findAllObservationType from "@/modules/observation-type/firestore/find-all-observation-type";
 import getAllAttendanceFilters from "@/modules/attendance/utils/get-attendance-filters";
-import { format, parse } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { AttendanceIntent } from "@/modules/attendance/enums/attendance-intents.enum";
 import type { ToastConfig } from "@/common/types/toast-config";
 import generateAttendanceByDepartment from "@/modules/attendance/firestore/generate-attendance-by-department";
 import parseAttendanceForm from "@/modules/attendance/utils/parse-attendance-form";
 import updateAttendance from "@/modules/attendance/firestore/update-attendance";
 import exportToExcel from "@/modules/attendance/utils/export-excel";
+import type { FirebaseAttendance } from "@/common/types/firebase/FirebaseAttendance";
+import { useNavigate } from "react-router";
+import { useEffect } from "react";
 
 export default function Attendance({ loaderData }: Route.ComponentProps) {
+  const navigate = useNavigate();
   const { departmentList, attendanceList, observationTypes, filters } =
     loaderData;
 
-  const handleExportToExcel = () => {
-    exportToExcel(attendanceList);
-  };
+
+    const handleDateFromSearchParams = () => {
+      const searchParams = new URLSearchParams(location.search);
+      return searchParams.get("date") ?? null;
+    };
+    const handleExportToExcel = () => {
+      console.log(handleDateFromSearchParams());
+      exportToExcel(attendanceList, handleDateFromSearchParams() ?? "");
+    };
+
+  useEffect(() => {
+    const date = handleDateFromSearchParams();
+    if (!date) {
+      navigate(`?date=${format(new Date(), "yyyy-MM-dd")}`);
+    }
+  }, [filters.date]);
 
   return (
     <div className="flex flex-col gap-3">
-      <AttendanceFilters
-        initialDate={filters.date}
-        handleExportToExcel={handleExportToExcel}
-      />
+      <AttendanceFilters handleExportToExcel={handleExportToExcel} />
       <AttendanceTable
         attendance={attendanceList}
         departments={departmentList}
@@ -41,18 +55,20 @@ export default function Attendance({ loaderData }: Route.ComponentProps) {
 export async function loader({ request }: Route.LoaderArgs) {
   const attendanceFilters = getAllAttendanceFilters(request);
 
+  let attendanceList: FirebaseAttendance[] = [];
   const departmentList = await findAllDepartment();
 
   const filters: FindaAllAttendanceFilters = {
     dni: attendanceFilters.dni,
-    date: attendanceFilters.date?.length
-      ? parse(attendanceFilters.date, "yyyy-MM-dd", new Date())
-      : new Date(),
+    date: attendanceFilters.date,
     department: attendanceFilters.department ?? departmentList[0].uid,
   };
 
   const observationTypes = await findAllObservationType();
-  const attendanceList = await findAllAttendanceWithFilters(filters);
+
+  if (filters.date) {
+    attendanceList = await findAllAttendanceWithFilters(filters);
+  }
 
   return {
     filters,
@@ -66,11 +82,14 @@ export async function action({ request }: Route.ActionArgs) {
   const toastList: ToastConfig[] = [];
   const formData = await request.formData();
   const intent = formData.get("intent") as AttendanceIntent;
+  const url = new URL(request.url);
+  const date = url.searchParams.get("date") as string;
 
   if (intent === AttendanceIntent.GENERATE_ATTENDANCES) {
     const departmentUid = formData.get("department") as string;
     const generateAttendanceCount = await generateAttendanceByDepartment(
-      departmentUid
+      departmentUid,
+      date
     );
 
     console.log(generateAttendanceCount);

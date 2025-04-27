@@ -4,27 +4,24 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { FilterIcon, Table } from "lucide-react";
-import { useNavigate, useLocation } from "react-router";
+import { useNavigate, useLocation, useNavigation } from "react-router";
 import { format, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
 import { DateTimePicker } from "@/components/ui/date-time-picker";
+import PulseLoader from "react-spinners/PulseLoader";
 
 interface Props {
-  initialDate: Date | null;
   handleExportToExcel: () => void;
 }
 
 export default function AttendanceFilters({
-  initialDate,
   handleExportToExcel,
 }: Props) {
   const navigate = useNavigate();
   const location = useLocation();
+  const navigation = useNavigation();
 
-  const [date, setDate] = useState<Date>(
-    parseISO(initialDate?.toISOString() ?? new Date().toISOString()) ??
-      new Date()
-  );
+  const [date, setDate] = useState<Date | null>(null);
   const [dni, setDni] = useState<string>("");
 
   const handleSelectDate = (newDay: Date | undefined) => {
@@ -52,9 +49,22 @@ export default function AttendanceFilters({
     navigate(`${location.pathname}?${searchParams.toString()}`);
   };
 
+  const handleDateFormSearchParams = () => {
+    const searchParams = new URLSearchParams(location.search);
+    const date = searchParams.get("date");
+    if (date) {
+      console.log("Attendance Filters - date", date);
+      const dateParsed = parseISO(date);
+      console.log("Attendance Filters - dateParsed", dateParsed);
+      setDate(dateParsed);
+    } else {
+      setDate(new Date());
+    }
+  };
+
   useEffect(() => {
-    setDate(initialDate ?? new Date());
-  }, [initialDate]);
+    handleDateFormSearchParams();
+  }, [location.search]);
 
   return (
     <Card>
@@ -81,7 +91,7 @@ export default function AttendanceFilters({
             </Label>
             <DateTimePicker
               displayFormat="dd 'de' MMMM 'del' yyyy"
-              date={date}
+              date={date ?? undefined}
               setDate={handleSelectDate}
               locale={es}
               hideTime
@@ -89,9 +99,16 @@ export default function AttendanceFilters({
             />
           </div>
           <div className="mt-auto">
-            <Button onClick={handleFilter}>
+            <Button
+              onClick={handleFilter}
+              disabled={navigation.state === "loading"}
+            >
               <FilterIcon />
-              Filtrar
+              {navigation.state === "loading" ? (
+                <PulseLoader size={10} color="#fff" />
+              ) : (
+                <>Filtrar</>
+              )}
             </Button>
           </div>
         </div>

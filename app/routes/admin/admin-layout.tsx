@@ -1,4 +1,4 @@
-import { Outlet, redirect } from "react-router";
+import { Outlet, redirect, useLocation, useNavigation } from "react-router";
 import type { Route } from "./+types/admin-layout";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import DashboardSidebar from "@/common/components/sidebar/dashboard-sidebar";
@@ -6,9 +6,13 @@ import { getCurrentEmployee } from "@/common/firestore/get-current-employee";
 import { requireUser } from "@/lib/session.server";
 import type { FirebaseAdminUser } from "@/common/types/firebase/FIrebaseAdminUser";
 import type { FirebaseEmployee } from "@/common/types/firebase/FirebaseEmployee.type";
+import { LoadingScreen } from "@/common/components/loading-screen";
 
 export default function AdminLayout({ loaderData }: Route.ComponentProps) {
   const { user, employee } = loaderData;
+  const navigation = useNavigation();
+
+  const currentPath = useLocation().pathname;
 
   return (
     <SidebarProvider>
@@ -21,6 +25,8 @@ export default function AdminLayout({ loaderData }: Route.ComponentProps) {
           <Outlet />
         </main>
       </div>
+      {navigation.state === "loading" &&
+        currentPath !== navigation.location?.pathname && <LoadingScreen />}
     </SidebarProvider>
   );
 }

@@ -136,7 +136,10 @@ export default function EmployeeDialog({
                         placeholder="Nombres"
                         value={
                           !namesModified
-                            ? _.startCase(field.value)
+                            ? field.value
+                                .split(" ")
+                                .map((name) => _.capitalize(name))
+                                .join(" ")
                             : field.value
                         }
                         onChange={(e) => {
@@ -162,7 +165,10 @@ export default function EmployeeDialog({
                         placeholder="Apellidos"
                         value={
                           !lastnameModified
-                            ? _.startCase(field.value)
+                            ? field.value
+                                .split(" ")
+                                .map((lastname) => _.capitalize(lastname))
+                                .join(" ")
                             : field.value
                         }
                         onChange={(e) => {
@@ -205,7 +211,9 @@ export default function EmployeeDialog({
                       <DateTimePicker
                         displayFormat="dd-MM-yyyy"
                         date={field.value ? parseISO(field.value) : undefined}
-                        setDate={(value) => field.onChange(value?.toISOString())}
+                        setDate={(value) =>
+                          field.onChange(value?.toISOString())
+                        }
                         lessThanToday
                         hideTime
                       />
@@ -474,7 +482,9 @@ export default function EmployeeDialog({
                       <DateTimePicker
                         displayFormat="dd-MM-yyyy"
                         date={field.value ? parseISO(field.value) : undefined}
-                        setDate={(value) => field.onChange(value?.toISOString())}
+                        setDate={(value) =>
+                          field.onChange(value?.toISOString())
+                        }
                         hideTime
                         lessThanToday
                       />

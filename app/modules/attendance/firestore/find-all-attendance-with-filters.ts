@@ -9,7 +9,7 @@ import {
 
 export interface FindaAllAttendanceFilters {
   dni: string | null;
-  date: Date | null;
+  date: string | null;
   department: string | null;
 }
 
@@ -26,17 +26,11 @@ export default async function findAllAttendanceWithFilters(
   );
 
   if (filters.date) {
-    const validDate = parseISO(filters.date.toISOString());
-
-    const startOfDayUTC = startOfDay(validDate);
-    const endOfDayUTC = endOfDay(validDate);
-
-    const startOfDayTimestamp = Timestamp.fromDate(startOfDayUTC);
-    const endOfDayTimestamp = Timestamp.fromDate(endOfDayUTC);
-
-    attendanceListRef = attendanceListRef
-      .where("created_at", ">=", startOfDayTimestamp)
-      .where("created_at", "<=", endOfDayTimestamp);
+    attendanceListRef = attendanceListRef.where(
+      "created_at_date",
+      "==",
+      filters.date
+    );
   }
 
   if (filters.department && filters.department.trim() !== "") {
@@ -153,5 +147,7 @@ async function getAttendance(doc: QueryDocumentSnapshot<any>) {
     overtime: doc.data().overtime,
     observation: doc.data().observation,
     created_at: format(doc.data().created_at.toDate(), "dd/MM/yyyy HH:mm"),
+    created_at_date: doc.data().created_at_date,
+    deleted_at: doc.data().deleted_at,
   } as FirebaseAttendance;
 }
