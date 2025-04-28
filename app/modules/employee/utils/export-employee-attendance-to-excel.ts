@@ -1,4 +1,4 @@
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import * as ExcelJS from "exceljs";
 import axios from "axios";
 import type { FirebaseAttendance } from "@/common/types/firebase/FirebaseAttendance";
@@ -315,22 +315,31 @@ export default async function exportToExcel(
       };
     });
 
+    // Crear un objeto para almacenar la longitud máxima de cada columna
+    const columnMaxLengths: { [key: string]: number } = {};
+
+    // Inicializar con las longitudes de los encabezados
+    columnHeaders.forEach((header, index) => {
+      columnMaxLengths[index + 1] = header.length;
+    });
+
     // Añadir datos de asistencia
     attendanceList.forEach((attendance) => {
-      const dataRow = worksheet.addRow([
+      // Preparar los datos de la fila antes de añadirlos para poder medir su longitud
+      const rowData = [
         // Datos de asistencia
-        format(new Date(attendance.created_at_date), "dd-MM-yyyy"),
+        format(parseISO(attendance.created_at_date), "dd-MM-yyyy"),
         attendance.first_check_in_time
-          ? format(new Date(attendance.first_check_in_time), "HH:mm")
+          ? format(parseISO(attendance.first_check_in_time), "HH:mm")
           : "No registrado",
         attendance.first_check_out_time
-          ? format(new Date(attendance.first_check_out_time), "HH:mm")
+          ? format(parseISO(attendance.first_check_out_time), "HH:mm")
           : "No registrado",
         attendance.second_check_in_time
-          ? format(new Date(attendance.second_check_in_time), "HH:mm")
+          ? format(parseISO(attendance.second_check_in_time), "HH:mm")
           : "No registrado",
         attendance.second_check_out_time
-          ? format(new Date(attendance.second_check_out_time), "HH:mm")
+          ? format(parseISO(attendance.second_check_out_time), "HH:mm")
           : "No registrado",
 
         // Información adicional
@@ -343,7 +352,21 @@ export default async function exportToExcel(
         attendance.work_hours !== undefined && attendance.overtime !== undefined
           ? Number(attendance.work_hours) + Number(attendance.overtime)
           : "Por calcular",
-      ]);
+      ];
+
+      // Actualizar longitudes máximas de columnas
+      rowData.forEach((value, index) => {
+        const stringValue = String(value);
+        const columnIndex = index + 1;
+        const currentLength = columnMaxLengths[columnIndex] || 0;
+        const valueLength = stringValue.length;
+
+        if (valueLength > currentLength) {
+          columnMaxLengths[columnIndex] = valueLength;
+        }
+      });
+
+      const dataRow = worksheet.addRow(rowData);
 
       // Aplicar estilos a las celdas de datos
       dataRow.eachCell((cell) => {
@@ -362,10 +385,13 @@ export default async function exportToExcel(
       dataRow.height = 20;
     });
 
-    // Ajustar anchos de columna
-    const columnWidths = [20, 20, 20, 20, 20, 30, 15, 18, 18, 18];
-    columnWidths.forEach((width, index) => {
-      worksheet.getColumn(index + 1).width = width;
+    // Ajustar anchos de columna automáticamente basado en el contenido
+    Object.keys(columnMaxLengths).forEach((columnIndex) => {
+      const column = worksheet.getColumn(parseInt(columnIndex));
+      // Añadimos un factor de 1.2 para dar un poco de espacio extra
+      // y establecemos un ancho mínimo de 10 para que ninguna columna sea demasiado estrecha
+      const calculatedWidth = Math.max(10, (columnMaxLengths[columnIndex] * 1.2));
+      column.width = calculatedWidth;
     });
 
     // Generar nombre de archivo
@@ -391,7 +417,7 @@ export default async function exportToExcel(
     // Liberar el objeto URL
     window.URL.revokeObjectURL(url);
 
-    console.log("Excel generado con éxito con la imagen incluida.");
+    console.log("Excel generado con éxito con la imagen incluida y columnas autoajustadas.");
     return fileName;
   } catch (error) {
     console.error("Error al generar el Excel:", error);

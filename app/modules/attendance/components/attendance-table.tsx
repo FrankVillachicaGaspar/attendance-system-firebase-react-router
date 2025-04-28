@@ -93,7 +93,9 @@ export function AttendanceTable({
 
   useEffect(() => {
     const dateParam = parseISO(date);
-    setTableDate(format(dateParam, "dd 'de' MMMM 'del' yyyy", { locale: es }));
+    if (date.length > 0) {
+      setTableDate(format(dateParam, "dd 'de' MMMM 'del' yyyy", { locale: es }));
+    }
   }, [date]);
 
   return (
