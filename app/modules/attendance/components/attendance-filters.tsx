@@ -14,9 +14,7 @@ interface Props {
   handleExportToExcel: () => void;
 }
 
-export default function AttendanceFilters({
-  handleExportToExcel,
-}: Props) {
+export default function AttendanceFilters({ handleExportToExcel }: Props) {
   const navigate = useNavigate();
   const location = useLocation();
   const navigation = useNavigation();
@@ -112,13 +110,13 @@ export default function AttendanceFilters({
             </Button>
           </div>
         </div>
-        <div>
+        <div className="flex flex-wrap gap-4">
           <Button
             className="bg-green-600 hover:bg-green-700"
             onClick={handleExportToExcel}
           >
             <Table className="mr-2" />
-            Exportar a Excel
+            <p>Exportar asistencias</p>
           </Button>
         </div>
       </CardContent>

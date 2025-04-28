@@ -23,15 +23,14 @@ export default function Attendance({ loaderData }: Route.ComponentProps) {
   const { departmentList, attendanceList, observationTypes, filters } =
     loaderData;
 
-
-    const handleDateFromSearchParams = () => {
-      const searchParams = new URLSearchParams(location.search);
-      return searchParams.get("date") ?? null;
-    };
-    const handleExportToExcel = () => {
-      console.log(handleDateFromSearchParams());
-      exportToExcel(attendanceList, handleDateFromSearchParams() ?? "");
-    };
+  const handleDateFromSearchParams = () => {
+    const searchParams = new URLSearchParams(location.search);
+    return searchParams.get("date") ?? null;
+  };
+  const handleExportToExcel = () => {
+    console.log(handleDateFromSearchParams());
+    exportToExcel(attendanceList, handleDateFromSearchParams() ?? "");
+  };
 
   useEffect(() => {
     const date = handleDateFromSearchParams();
@@ -43,6 +42,7 @@ export default function Attendance({ loaderData }: Route.ComponentProps) {
   return (
     <div className="flex flex-col gap-3">
       <AttendanceFilters handleExportToExcel={handleExportToExcel} />
+
       <AttendanceTable
         attendance={attendanceList}
         departments={departmentList}

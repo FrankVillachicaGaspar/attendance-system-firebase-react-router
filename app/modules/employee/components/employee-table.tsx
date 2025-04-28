@@ -23,6 +23,7 @@ import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router";
 import { useDebouncedValue } from "@mantine/hooks";
 import _ from "lodash";
+import { AttendanceByEmployeeDialog } from "./attendance-by-employee-dialog";
 interface Props {
   employeePaginationResponse: PaginationResponse<FirebaseEmployee[]>;
   jobPositions: FirebaseJobPosition[];
@@ -190,6 +191,7 @@ export default function EmployeeTable({
               <Trash2 className="h-4 w-4 text-destructive" />
               <span className="sr-only">Eliminar</span>
             </Button>
+            <AttendanceByEmployeeDialog employee={row.original} />
           </div>
         ),
       },

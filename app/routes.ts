@@ -22,4 +22,10 @@ export default [
   route("logout", "routes/logout.tsx"),
   route("login-server", "routes/login-server.tsx"),
   route("logout-server", "routes/logout-server.tsx"),
+
+  // Actions
+  route(
+    "get-attendances-by-employee",
+    "routes/actions/get-attendances-by-employee.tsx"
+  ),
 ] satisfies RouteConfig;
