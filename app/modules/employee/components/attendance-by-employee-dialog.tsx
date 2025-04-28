@@ -26,6 +26,7 @@ import { useFetcher } from "react-router";
 import type { FirebaseEmployee } from "@/common/types/firebase/FirebaseEmployee.type";
 import exportEmployeeAttendanceToExcel from "../utils/export-employee-attendance-to-excel";
 import type { FirebaseAttendance } from "@/common/types/firebase/FirebaseAttendance";
+import SyncLoader from "react-spinners/SyncLoader";
 
 interface Props {
   employee: FirebaseEmployee;
@@ -57,6 +58,8 @@ export function AttendanceByEmployeeDialog({ employee }: Props) {
       exportEmployeeAttendanceToExcel(fetcherData.attendanceList, {
         from: date?.from ? format(date.from, "yyyy-MM-dd") : "",
         to: date?.to ? format(date.to, "yyyy-MM-dd") : "",
+      }).then(() => {
+        setOpen(false);
       });
     }
   }, [fetcherData]);
@@ -131,8 +134,16 @@ export function AttendanceByEmployeeDialog({ employee }: Props) {
           )}
         </div>
         <DialogFooter>
-          <Button onClick={handleExport} disabled={!date}>
-            Exportar datos
+          <Button
+            onClick={handleExport}
+            disabled={!date || fetcher.state !== "idle"}
+            className="w-30"
+          >
+            {fetcher.state !== "idle" ? (
+              <SyncLoader color="#fff" size={4} />
+            ) : (
+              "Exportar datos"
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>

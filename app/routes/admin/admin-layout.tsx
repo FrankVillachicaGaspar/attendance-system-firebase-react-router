@@ -53,7 +53,7 @@ export async function loader({ request }: Route.LoaderArgs): Promise<
 
   const employee = await getCurrentEmployee(user.uid);
 
-  if (employee && employee.role.name !== "admin") {
+  if (employee && employee.role.name.toLowerCase() !== "administrador") {
     const _ = await fetch("/logout", {
       method: "POST",
     });

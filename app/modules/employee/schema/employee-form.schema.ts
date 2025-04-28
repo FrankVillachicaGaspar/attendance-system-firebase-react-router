@@ -7,7 +7,7 @@ const calculateAge = (birthDate: string): number => {
   // Asegurarse de que birthDate esté en un formato ISO válido
   const parsedDate = parseISO(birthDate);
   if (!isValid(parsedDate)) {
-    throw new Error("Fecha de nacimiento inválida.");
+    return 0;
   }
 
   const today = new Date();
@@ -72,9 +72,16 @@ export const employeeFormSchema = z.object({
     message: "Debe ingresar la fecha de contratación",
   }),
   is_active: z.boolean(),
-  email: z.string().email({
-    message: "Debe ingresar un correo electrónico válido",
-  }),
+  email: z
+    .string()
+    .trim()
+    .transform((val) => (val === "" ? undefined : val))
+    .pipe(
+      z
+        .string()
+        .email({ message: "Debe ingresar un correo electrónico válido" })
+        .optional()
+    ),
 });
 
 export type EmployeeFormType = z.infer<typeof employeeFormSchema>;

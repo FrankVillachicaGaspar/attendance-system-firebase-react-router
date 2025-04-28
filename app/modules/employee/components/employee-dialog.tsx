@@ -1,5 +1,5 @@
 import type { FirebaseEmployee } from "@/common/types/firebase/FirebaseEmployee.type";
-import { useForm } from "react-hook-form";
+import { useForm, type Resolver } from "react-hook-form";
 import {
   employeeFormSchema,
   type EmployeeFormType,
@@ -53,6 +53,7 @@ import { DialogDescription } from "@radix-ui/react-dialog";
 import { DateTimePicker } from "@/components/ui/date-time-picker";
 import { parseISO } from "date-fns";
 import _ from "lodash";
+import { es } from "date-fns/locale";
 
 interface Props {
   open: boolean;
@@ -93,7 +94,7 @@ export default function EmployeeDialog({
   };
 
   const form = useForm<EmployeeFormType>({
-    resolver: zodResolver(employeeFormSchema),
+    resolver: zodResolver(employeeFormSchema) as Resolver<EmployeeFormType>,
     defaultValues: initialValues,
   });
 
@@ -209,6 +210,7 @@ export default function EmployeeDialog({
                     <FormLabel>Fecha de nacimiento</FormLabel>
                     <FormControl>
                       <DateTimePicker
+                        placeholder="Seleccione una fecha"
                         displayFormat="dd-MM-yyyy"
                         date={field.value ? parseISO(field.value) : undefined}
                         setDate={(value) =>
@@ -216,6 +218,7 @@ export default function EmployeeDialog({
                         }
                         lessThanToday
                         hideTime
+                        locale={es}
                       />
                     </FormControl>
                     <FormMessage />
@@ -480,6 +483,7 @@ export default function EmployeeDialog({
                     <FormLabel>Fecha de contratación</FormLabel>
                     <FormControl>
                       <DateTimePicker
+                        placeholder="Seleccione una fecha"
                         displayFormat="dd-MM-yyyy"
                         date={field.value ? parseISO(field.value) : undefined}
                         setDate={(value) =>
@@ -487,6 +491,7 @@ export default function EmployeeDialog({
                         }
                         hideTime
                         lessThanToday
+                        locale={es}
                       />
                     </FormControl>
                     <FormMessage />

@@ -143,16 +143,14 @@ export default function EmployeeTable({
         accessorKey: "salary",
         header: "Salario",
         cell: ({ row }) => (
-          <div className="text-right">
-            {formatCurrency(row.original.salary)}
-          </div>
+          <div>{formatCurrency(row.original.salary)}</div>
         ),
       },
       {
         accessorKey: "is_active",
         header: "Estado",
         cell: ({ row }) => (
-          <div className="flex justify-center">
+          <div>
             {row.original.is_active ? (
               <Badge
                 variant="outline"
@@ -173,8 +171,9 @@ export default function EmployeeTable({
       },
       {
         id: "actions",
+        header: "Acciones",
         cell: ({ row }) => (
-          <div className="flex justify-end gap-2">
+          <div className="flex gap-2">
             <Button
               variant="ghost"
               size="icon"

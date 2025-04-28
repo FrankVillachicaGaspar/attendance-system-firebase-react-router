@@ -139,7 +139,7 @@ export function ObservationTypeDialog({
                 variant="outline"
                 onClick={() => onOpenChange(false)}
               >
-                Cancel
+                Cancelar
               </Button>
               <Button type="submit" disabled={isSubmiting}>
                 {isSubmiting ? (

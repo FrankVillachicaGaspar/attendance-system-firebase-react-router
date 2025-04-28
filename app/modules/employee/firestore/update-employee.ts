@@ -24,7 +24,7 @@ export async function updateEmployee(uid: string, employee: EmployeeFormType) {
 
     // Paso 3: Crear el objeto de actualización para el empleado
     const employeeDoc = {
-      email: employee.email,
+      email: employee.email === "undefined" ? null : employee.email,
       names: employee.names.toLowerCase(),
       lastname: employee.lastname.toLowerCase(),
       dni: employee.dni,

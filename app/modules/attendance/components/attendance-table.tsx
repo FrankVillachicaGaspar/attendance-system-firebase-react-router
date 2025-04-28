@@ -13,20 +13,25 @@ import type { Route } from ".react-router/types/app/routes/admin/sections/+types
 import executeToastList from "@/common/utils/execute-toast-list.util";
 import { AttendanceIntent } from "../enums/attendance-intents.enum";
 import PulseLoader from "react-spinners/PulseLoader";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { SearchableSelect } from "@/components/ui/search-input-select";
 import _ from "lodash";
+import { es } from "date-fns/locale";
+
 interface AttendanceTableProps {
+  date: string;
   attendance: FirebaseAttendance[];
   departments: FirebaseDepartment[];
   observationTypes: FirebaseObservationType[];
 }
 
 export function AttendanceTable({
+  date,
   attendance,
   departments,
   observationTypes,
 }: AttendanceTableProps) {
+  const [tableDate, setTableDate] = useState<string | null>(null);
   const [attendanceList, setAttendanceList] = useState<FirebaseAttendance[]>(
     []
   );
@@ -86,12 +91,17 @@ export function AttendanceTable({
     setAttendanceList(attendance);
   }, [attendance]);
 
+  useEffect(() => {
+    const dateParam = parseISO(date);
+    setTableDate(format(dateParam, "dd 'de' MMMM 'del' yyyy", { locale: es }));
+  }, [date]);
+
   return (
     <Card>
       <CardHeader className="flex flex-wrap flex-row items-center justify-between gap-4 md:gap-0">
         <CardTitle className="flex items-center gap-2">
           <Clock className="h-5 w-5" />
-          Control de Asistencia
+          Control de Asistencia {tableDate ? `del ${tableDate}` : ""}
         </CardTitle>
         <div className="flex items-end gap-2">
           <div className="flex flex-col gap-2">
@@ -160,7 +170,7 @@ export function AttendanceTable({
                     {row.original.first_check_in_time ? (
                       format(
                         new Date(row.original.first_check_in_time),
-                        "dd-MM-yyyy HH:mm"
+                        "HH:mm"
                       )
                     ) : (
                       <span className="text-muted-foreground">
@@ -179,7 +189,7 @@ export function AttendanceTable({
                     {row.original.first_check_out_time ? (
                       format(
                         new Date(row.original.first_check_out_time),
-                        "dd-MM-yyyy HH:mm"
+                        "HH:mm"
                       )
                     ) : (
                       <span className="text-muted-foreground">
@@ -198,7 +208,7 @@ export function AttendanceTable({
                     {row.original.second_check_in_time ? (
                       format(
                         new Date(row.original.second_check_in_time),
-                        "dd-MM-yyyy HH:mm"
+                        "HH:mm"
                       )
                     ) : (
                       <span className="text-muted-foreground">
@@ -217,7 +227,7 @@ export function AttendanceTable({
                     {row.original.second_check_out_time ? (
                       format(
                         new Date(row.original.second_check_out_time),
-                        "dd-MM-yyyy HH:mm"
+                        "HH:mm"
                       )
                     ) : (
                       <span className="text-muted-foreground">

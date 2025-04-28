@@ -139,7 +139,7 @@ export function JobPositionDialog({
                 variant="outline"
                 onClick={() => onOpenChange(false)}
               >
-                Cancel
+                Cancelar
               </Button>
               <Button type="submit" disabled={isSubmiting}>
                 {isSubmiting ? (

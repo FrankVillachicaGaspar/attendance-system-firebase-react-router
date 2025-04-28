@@ -41,6 +41,7 @@ export async function clientAction({ request }: Route.ClientActionArgs) {
 
     if (!res.ok) throw new Error("No se pudo guardar la sesión en el servidor");
   } catch (error: any) {
+    console.log(error);
     handleLoginError(error);
   }
   return redirect("/admin");
@@ -72,8 +73,10 @@ export default function Login() {
         />
       </div>
       <div className="flex flex-col gap-4md:p-10 bg-red-500 py-6">
-        <div className="flex flex-col gap-10 flex-1 items-center justify-center">
-          <h1 className="text-6xl font-light text-center text-white">R&S</h1>
+        <div className="flex flex-col gap-10 flex-1 items-center justify-center w-xl mx-auto">
+          <h1 className="text-3xl font-light text-center text-white">
+            CORPORACIÓN R&S INVERSIONES & CONSTRUCCIONES S.A.C
+          </h1>
           <div className="w-ful">
             <LoginForm />
           </div>

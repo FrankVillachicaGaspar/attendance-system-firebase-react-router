@@ -15,11 +15,13 @@ import parseAttendanceForm from "@/modules/attendance/utils/parse-attendance-for
 import updateAttendance from "@/modules/attendance/firestore/update-attendance";
 import exportToExcel from "@/modules/attendance/utils/export-excel";
 import type { FirebaseAttendance } from "@/common/types/firebase/FirebaseAttendance";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import { useEffect } from "react";
 
 export default function Attendance({ loaderData }: Route.ComponentProps) {
   const navigate = useNavigate();
+  const location = useLocation();
+
   const { departmentList, attendanceList, observationTypes, filters } =
     loaderData;
 
@@ -44,6 +46,7 @@ export default function Attendance({ loaderData }: Route.ComponentProps) {
       <AttendanceFilters handleExportToExcel={handleExportToExcel} />
 
       <AttendanceTable
+        date={handleDateFromSearchParams() ?? ""}
         attendance={attendanceList}
         departments={departmentList}
         observationTypes={observationTypes}
